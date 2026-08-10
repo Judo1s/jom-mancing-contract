@@ -40,15 +40,19 @@ import type { AuthResponse } from 'jom-mancing-contract'
 const res: AuthResponse = await (await fetch(`${API_URL}/api/auth/register`, {...})).json()
 ```
 
-## Consuming this package locally (current setup)
+## Consuming this package
 
-This package is not yet published or pushed to its own GitHub repo. Both
-`Jom-Mancing-Server` and `Jom-Mancing-App` currently depend on it via a relative
-`file:` path (see each repo's `package.json`), since all three folders sit side by
-side under `OneDrive/Documents/Jom Mancing/`. Run `npm run build` in this folder after
-any schema change so the compiled `dist/` the other repos import stays current.
+Hosted at `github.com/Judo1s/jom-mancing-contract`. Both `Jom-Mancing-Server` and
+`Jom-Mancing-App` depend on it as a git dependency:
 
-**Before the two devs start working from separate machines**, this needs to move to
-its own GitHub repo so the `file:` dependency can become a git dependency
-(`github:Judo1s/jom-mancing-contract`) — currently an open item, tracked in
-`Jom-Mancing-App/docs/development-plan.md`.
+```json
+"jom-mancing-contract": "github:Judo1s/jom-mancing-contract"
+```
+
+`dist/` is gitignored — it is not committed. The `prepare` script (`tsc`) runs
+automatically when npm installs a git dependency, so `npm install` in either
+consuming repo builds it fresh from `src/`. After changing a schema here, commit and
+push, then run `npm install jom-mancing-contract` (or delete-and-reinstall
+`node_modules/jom-mancing-contract`) in the consuming repo to pick up the change —
+npm does not auto-update git dependencies on a plain `npm install` once the commit is
+already cached locally.
