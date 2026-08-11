@@ -50,8 +50,23 @@ export const KolamDetail = z.object({
   hours: z.array(KolamHoursItem),
   photos: z.array(KolamPhotoItem),
   stockReleases: z.array(KolamStockReleaseItem),
+  // false for an anonymous request (no bearer token) as well as "not saved".
+  isSaved: z.boolean(),
 })
 export type KolamDetail = z.infer<typeof KolamDetail>
+
+// POST/DELETE /api/kolam/:id/save
+export const SaveSpotResponse = z.object({
+  isSaved: z.boolean(),
+  savedSpotLimit: z.number().int().nullable(), // null == unlimited (premium)
+})
+export type SaveSpotResponse = z.infer<typeof SaveSpotResponse>
+
+export const SaveSpotLimitError = z.object({
+  error: z.literal('SAVED_SPOT_LIMIT_REACHED'),
+  savedSpotLimit: z.number().int(),
+})
+export type SaveSpotLimitError = z.infer<typeof SaveSpotLimitError>
 
 // GET /api/kolam/:id/leaderboard
 export const LeaderboardEntry = z.object({
