@@ -1,22 +1,10 @@
 import { z } from 'zod'
 
-// GET /api/species
-export const SpeciesItem = z.object({
-  id: z.string(),
-  malayName: z.string(),
-  englishName: z.string().nullable(),
-})
-export type SpeciesItem = z.infer<typeof SpeciesItem>
-
-export const SpeciesListResponse = z.object({
-  species: z.array(SpeciesItem),
-})
-export type SpeciesListResponse = z.infer<typeof SpeciesListResponse>
-
-// POST /api/uploads/presign — scoped to the 'catches' folder for now (the only
-// user-facing upload flow so far; kolam-photos are still seeded/managed directly).
+// POST /api/uploads/presign — 'catches' (default) or 'profile'. kolam-photos stay
+// out of reach of this user-facing endpoint; they're still seeded/managed directly.
 export const PresignUploadRequest = z.object({
   contentType: z.string().min(1),
+  folder: z.enum(['catches', 'profile']).default('catches'),
 })
 export type PresignUploadRequest = z.infer<typeof PresignUploadRequest>
 
@@ -28,7 +16,9 @@ export type PresignUploadResponse = z.infer<typeof PresignUploadResponse>
 
 // POST /api/catches
 export const CreateCatchRequest = z.object({
-  speciesId: z.string().nullable().optional(),
+  // Free text, not a picker off the Species lookup table — there are far too many
+  // local fish names/variants for a fixed list to cover.
+  speciesName: z.string().trim().min(1).nullable().optional(),
   spotId: z.string().nullable().optional(),
   photoUrl: z.string().nullable().optional(),
   weightGrams: z.number().int().positive().nullable().optional(),

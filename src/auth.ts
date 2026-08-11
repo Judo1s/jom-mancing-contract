@@ -20,6 +20,9 @@ export const AuthUser = z.object({
   email: z.string().email().nullable(),
   name: z.string().nullable(),
   role: z.enum(['ANGLER', 'KOLAM_OWNER', 'ADMIN']),
+  image: z.string().nullable(),
+  bio: z.string().nullable(),
+  state: z.string().nullable(),
 })
 export type AuthUser = z.infer<typeof AuthUser>
 
