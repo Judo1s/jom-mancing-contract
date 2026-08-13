@@ -14,6 +14,8 @@ export const ShopListItem = z.object({
   name: z.string(),
   imageUrl: z.string().nullable(),
   rating: z.number().nullable(),
+  lat: z.number(),
+  lng: z.number(),
 })
 export type ShopListItem = z.infer<typeof ShopListItem>
 
