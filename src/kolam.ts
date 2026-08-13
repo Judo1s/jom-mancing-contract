@@ -37,6 +37,7 @@ export const KolamDetail = z.object({
   spotId: z.string(),
   name: z.string(),
   state: z.string().nullable(),
+  address: z.string().nullable(),
   latitude: z.number(),
   longitude: z.number(),
   phone: z.string().nullable(),
