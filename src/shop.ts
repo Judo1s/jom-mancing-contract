@@ -16,6 +16,7 @@ export const ShopListItem = z.object({
   rating: z.number().nullable(),
   lat: z.number(),
   lng: z.number(),
+  category: z.string().nullable(),
 })
 export type ShopListItem = z.infer<typeof ShopListItem>
 
@@ -44,6 +45,9 @@ export const ShopDetail = z.object({
   hours: z.string(),
   rating: z.number().nullable(),
   imageUrl: z.string().nullable(),
+  category: z.string().nullable(),
+  website: z.string().nullable(),
+  googleMapsUrl: z.string().nullable(),
   items: z.array(ShopItem),
 })
 export type ShopDetail = z.infer<typeof ShopDetail>

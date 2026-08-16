@@ -9,6 +9,7 @@ export const KolamPin = z.object({
   longitude: z.number(),
   isFeatured: z.boolean(),
   avgRating: z.number().nullable(),
+  category: z.string().nullable(),
 })
 export type KolamPin = z.infer<typeof KolamPin>
 
