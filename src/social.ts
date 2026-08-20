@@ -28,6 +28,7 @@ export const FriendsFeedItem = z.object({
   caughtAt: z.string(), // ISO datetime
   strikeCount: z.number().int(),
   struckByMe: z.boolean(),
+  commentCount: z.number().int(),
 })
 export type FriendsFeedItem = z.infer<typeof FriendsFeedItem>
 
@@ -42,6 +43,27 @@ export const StrikeResponse = z.object({
   strikeCount: z.number().int(),
 })
 export type StrikeResponse = z.infer<typeof StrikeResponse>
+
+// GET/POST /api/catches/:id/comments
+export const CommentItem = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userName: z.string().nullable(),
+  userImage: z.string().nullable(),
+  text: z.string(),
+  createdAt: z.string(), // ISO datetime
+})
+export type CommentItem = z.infer<typeof CommentItem>
+
+export const CatchCommentsResponse = z.object({
+  comments: z.array(CommentItem),
+})
+export type CatchCommentsResponse = z.infer<typeof CatchCommentsResponse>
+
+export const PostCommentRequest = z.object({
+  text: z.string().trim().min(1).max(500),
+})
+export type PostCommentRequest = z.infer<typeof PostCommentRequest>
 
 // POST /api/kolam/:id/reviews — upsert, since a user has at most one review per kolam.
 export const SubmitReviewRequest = z.object({
