@@ -26,6 +26,8 @@ export const FriendsFeedItem = z.object({
   lengthMm: z.number().int().nullable(),
   note: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
+  strikeCount: z.number().int(),
+  struckByMe: z.boolean(),
 })
 export type FriendsFeedItem = z.infer<typeof FriendsFeedItem>
 
@@ -33,6 +35,13 @@ export const FriendsFeedResponse = z.object({
   catches: z.array(FriendsFeedItem),
 })
 export type FriendsFeedResponse = z.infer<typeof FriendsFeedResponse>
+
+// POST/DELETE /api/catches/:id/strike — "Strike" is this app's kudos-style like.
+export const StrikeResponse = z.object({
+  struck: z.boolean(),
+  strikeCount: z.number().int(),
+})
+export type StrikeResponse = z.infer<typeof StrikeResponse>
 
 // POST /api/kolam/:id/reviews — upsert, since a user has at most one review per kolam.
 export const SubmitReviewRequest = z.object({
