@@ -65,6 +65,35 @@ export const PostCommentRequest = z.object({
 })
 export type PostCommentRequest = z.infer<typeof PostCommentRequest>
 
+// GET /api/notifications — derived live from Strike/Follow/Comment, not a stored
+// table (see decision-log context in Jom-Mancing-Server's schema.prisma comment on
+// User.notificationsCheckedAt).
+export const NotificationType = z.enum(['STRIKE', 'FOLLOW', 'COMMENT'])
+export type NotificationType = z.infer<typeof NotificationType>
+
+export const NotificationItem = z.object({
+  type: NotificationType,
+  actorId: z.string(),
+  actorName: z.string().nullable(),
+  actorImage: z.string().nullable(),
+  catchId: z.string().nullable(),
+  catchPhotoUrl: z.string().nullable(),
+  catchSpeciesName: z.string().nullable(),
+  createdAt: z.string(), // ISO datetime
+  unread: z.boolean(),
+})
+export type NotificationItem = z.infer<typeof NotificationItem>
+
+export const NotificationsResponse = z.object({
+  notifications: z.array(NotificationItem),
+})
+export type NotificationsResponse = z.infer<typeof NotificationsResponse>
+
+export const UnreadCountResponse = z.object({
+  count: z.number().int(),
+})
+export type UnreadCountResponse = z.infer<typeof UnreadCountResponse>
+
 // POST /api/kolam/:id/reviews — upsert, since a user has at most one review per kolam.
 export const SubmitReviewRequest = z.object({
   rating: z.number().int().min(1).max(5),
