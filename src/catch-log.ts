@@ -16,6 +16,7 @@ export type PresignUploadResponse = z.infer<typeof PresignUploadResponse>
 
 // POST /api/catches
 export const CreateCatchRequest = z.object({
+  title: z.string().trim().min(1).max(120).nullable().optional(),
   // Free text, not a picker off the Species lookup table — there are far too many
   // local fish names/variants for a fixed list to cover.
   speciesName: z.string().trim().min(1).nullable().optional(),
@@ -35,6 +36,7 @@ export type CatchStatus = z.infer<typeof CatchStatus>
 // GET /api/catches/me
 export const CatchLogItem = z.object({
   id: z.string(),
+  title: z.string().nullable(),
   speciesName: z.string().nullable(),
   spotName: z.string().nullable(),
   photoUrl: z.string().nullable(),

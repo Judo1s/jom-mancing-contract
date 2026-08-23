@@ -20,6 +20,7 @@ export const FriendsFeedItem = z.object({
   userId: z.string(),
   userName: z.string().nullable(),
   userImage: z.string().nullable(),
+  title: z.string().nullable(),
   speciesName: z.string().nullable(),
   photoUrl: z.string().nullable(),
   weightGrams: z.number().int().nullable(),
