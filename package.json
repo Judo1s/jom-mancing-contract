@@ -1,6 +1,6 @@
 {
   "name": "jom-mancing-contract",
-  "version": "0.15.0",
+  "version": "0.16.1",
   "description": "Shared Zod request/response schemas for the Jom Mancing app <-> server API. See README.md.",
   "private": true,
   "main": "dist/index.js",
@@ -8,12 +8,14 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.9"
   }
 }
