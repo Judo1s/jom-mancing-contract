@@ -25,6 +25,7 @@ export const FriendsFeedItem = z.object({
   photoUrl: z.string().nullable(),
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
+  baitUsed: z.string().nullable(),
   note: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
   strikeCount: z.number().int(),
