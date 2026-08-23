@@ -10,6 +10,9 @@ export const KolamPin = z.object({
   isFeatured: z.boolean(),
   avgRating: z.number().nullable(),
   category: z.string().nullable(),
+  // First kolam photo, for surfaces that show pins as cards rather than map markers
+  // (Home's kolam rail). Null when the kolam has no photos uploaded yet.
+  thumbnailUrl: z.string().nullable(),
 })
 export type KolamPin = z.infer<typeof KolamPin>
 

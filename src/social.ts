@@ -22,7 +22,9 @@ export const FriendsFeedItem = z.object({
   userImage: z.string().nullable(),
   title: z.string().nullable(),
   speciesName: z.string().nullable(),
+  // First photo; `photoUrls` is the full set the feed carousel pages through.
   photoUrl: z.string().nullable(),
+  photoUrls: z.array(z.string()),
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   baitUsed: z.string().nullable(),

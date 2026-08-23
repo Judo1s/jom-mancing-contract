@@ -13,6 +13,9 @@ export const EventItem = z.object({
   startsAt: z.string(), // ISO datetime
   endsAt: z.string(), // ISO datetime
   entryFeeSen: z.number().int().nullable(),
+  prizePoolSen: z.number().int().nullable(),
+  contactPhone: z.string().nullable(),
+  imageUrl: z.string().nullable(),
   isPromoted: z.boolean(),
 })
 export type EventItem = z.infer<typeof EventItem>
