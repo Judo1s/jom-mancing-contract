@@ -50,6 +50,12 @@ describe('CreateStockReleaseRequest', () => {
   it('requires releasedAt', () => {
     expect(() => CreateStockReleaseRequest.parse({ note: 'no date given' })).toThrow()
   })
+
+  it('rejects a non-integer quantityKg', () => {
+    expect(() =>
+      CreateStockReleaseRequest.parse({ releasedAt: new Date().toISOString(), quantityKg: 200.5 }),
+    ).toThrow()
+  })
 })
 
 describe('CreateKolamPhotoRequest', () => {

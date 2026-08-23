@@ -1,6 +1,6 @@
 {
   "name": "jom-mancing-contract",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "Shared Zod request/response schemas for the Jom Mancing app <-> server API. See README.md.",
   "private": true,
   "main": "dist/index.js",

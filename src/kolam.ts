@@ -156,7 +156,7 @@ export type KolamPricingResponse = z.infer<typeof KolamPricingResponse>
 export const CreateStockReleaseRequest = z.object({
   releasedAt: z.string(), // ISO datetime
   speciesId: z.string().nullable().optional(),
-  quantityKg: z.number().nullable().optional(),
+  quantityKg: z.number().int().nullable().optional(),
   note: z.string().nullable().optional(),
 })
 export type CreateStockReleaseRequest = z.infer<typeof CreateStockReleaseRequest>
