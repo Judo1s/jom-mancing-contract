@@ -90,3 +90,126 @@ export const KolamLeaderboardResponse = z.object({
   entries: z.array(LeaderboardEntry),
 })
 export type KolamLeaderboardResponse = z.infer<typeof KolamLeaderboardResponse>
+
+// GET /api/kolam/mine
+export const KolamMineItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  state: z.string().nullable(),
+  category: z.string().nullable(),
+  thumbnailUrl: z.string().nullable(),
+  avgRating: z.number().nullable(),
+  reviewCount: z.number().int(),
+})
+export type KolamMineItem = z.infer<typeof KolamMineItem>
+
+export const KolamMineListResponse = z.object({
+  kolams: z.array(KolamMineItem),
+})
+export type KolamMineListResponse = z.infer<typeof KolamMineListResponse>
+
+// PATCH /api/kolam/:id — owner-editable profile fields. All optional: send only what
+// changed, same "partial update" shape as UpdateProfileRequest in auth.ts.
+export const UpdateKolamProfileRequest = z.object({
+  phone: z.string().nullable().optional(),
+  whatsapp: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  website: z.string().nullable().optional(),
+  googleMapsUrl: z.string().nullable().optional(),
+  rules: z.array(z.string()).optional(),
+  amenities: z.array(z.string()).optional(),
+})
+export type UpdateKolamProfileRequest = z.infer<typeof UpdateKolamProfileRequest>
+
+// PUT /api/kolam/:id/hours — full replace. Rejects duplicate dayOfWeek values up
+// front rather than letting KolamHours's @@unique([kolamId, dayOfWeek]) constraint
+// fail the whole request with an opaque Prisma error.
+export const ReplaceKolamHoursRequest = z
+  .object({
+    hours: z.array(KolamHoursItem),
+  })
+  .refine((data) => new Set(data.hours.map((h) => h.dayOfWeek)).size === data.hours.length, {
+    message: 'Duplicate dayOfWeek values are not allowed',
+    path: ['hours'],
+  })
+export type ReplaceKolamHoursRequest = z.infer<typeof ReplaceKolamHoursRequest>
+
+export const KolamHoursResponse = z.object({
+  hours: z.array(KolamHoursItem),
+})
+export type KolamHoursResponse = z.infer<typeof KolamHoursResponse>
+
+// PUT /api/kolam/:id/pricing — full replace.
+export const ReplaceKolamPricingRequest = z.object({
+  pricing: z.array(KolamPricingItem),
+})
+export type ReplaceKolamPricingRequest = z.infer<typeof ReplaceKolamPricingRequest>
+
+export const KolamPricingResponse = z.object({
+  pricing: z.array(KolamPricingItem),
+})
+export type KolamPricingResponse = z.infer<typeof KolamPricingResponse>
+
+// POST /api/kolam/:id/stock-releases. speciesId is optional and, when given, must
+// name an existing Species row (validated server-side) — v1 has no species-picker
+// endpoint, so an owner who doesn't set it just describes the release via `note`.
+export const CreateStockReleaseRequest = z.object({
+  releasedAt: z.string(), // ISO datetime
+  speciesId: z.string().nullable().optional(),
+  quantityKg: z.number().nullable().optional(),
+  note: z.string().nullable().optional(),
+})
+export type CreateStockReleaseRequest = z.infer<typeof CreateStockReleaseRequest>
+
+// Distinct from KolamStockReleaseItem (used in the public KolamDetail response,
+// which has no need for a row id) — this one carries `id` so the owner dashboard can
+// target a specific release for deletion.
+export const KolamStockReleaseManageItem = z.object({
+  id: z.string(),
+  releasedAt: z.string(),
+  speciesId: z.string().nullable(),
+  speciesName: z.string().nullable(),
+  quantityKg: z.number().nullable(),
+  note: z.string().nullable(),
+})
+export type KolamStockReleaseManageItem = z.infer<typeof KolamStockReleaseManageItem>
+
+export const KolamStockReleasesResponse = z.object({
+  stockReleases: z.array(KolamStockReleaseManageItem),
+})
+export type KolamStockReleasesResponse = z.infer<typeof KolamStockReleasesResponse>
+
+// POST /api/kolam/:id/photos/presign — same presigned-PUT pattern as
+// POST /api/uploads/presign, scoped to kolam owners instead of anglers.
+export const PresignKolamPhotoRequest = z.object({
+  contentType: z.string().min(1),
+})
+export type PresignKolamPhotoRequest = z.infer<typeof PresignKolamPhotoRequest>
+
+export const PresignKolamPhotoResponse = z.object({
+  uploadUrl: z.string(),
+  publicUrl: z.string(),
+})
+export type PresignKolamPhotoResponse = z.infer<typeof PresignKolamPhotoResponse>
+
+// POST /api/kolam/:id/photos — called after the client PUTs bytes to the presigned
+// URL above, same two-step pattern as catch-log photos.
+export const CreateKolamPhotoRequest = z.object({
+  url: z.string().min(1),
+  order: z.number().int().nonnegative().optional(),
+})
+export type CreateKolamPhotoRequest = z.infer<typeof CreateKolamPhotoRequest>
+
+// Distinct from KolamPhotoItem (public KolamDetail response, no id) for the same
+// reason as KolamStockReleaseManageItem above.
+export const KolamPhotoManageItem = z.object({
+  id: z.string(),
+  url: z.string(),
+  order: z.number().int(),
+})
+export type KolamPhotoManageItem = z.infer<typeof KolamPhotoManageItem>
+
+export const KolamPhotosResponse = z.object({
+  photos: z.array(KolamPhotoManageItem),
+})
+export type KolamPhotosResponse = z.infer<typeof KolamPhotosResponse>
