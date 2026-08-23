@@ -27,6 +27,9 @@ export const CreateCatchRequest = z.object({
   baitUsed: z.string().nullable().optional(),
   note: z.string().nullable().optional(),
   caughtAt: z.string(), // ISO datetime
+  // "Publish to the Activity feed" vs "just log it" toggle on the create form —
+  // defaults to published, matching the pre-toggle behavior.
+  published: z.boolean().default(true),
 })
 export type CreateCatchRequest = z.infer<typeof CreateCatchRequest>
 
@@ -46,6 +49,7 @@ export const CatchLogItem = z.object({
   note: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
   status: CatchStatus,
+  published: z.boolean(),
 })
 export type CatchLogItem = z.infer<typeof CatchLogItem>
 
