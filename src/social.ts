@@ -14,7 +14,8 @@ export const UserSearchResponse = z.object({
 })
 export type UserSearchResponse = z.infer<typeof UserSearchResponse>
 
-// GET /api/feed/friends — catches from users the requester follows.
+// GET /api/feed/friends — every published catch, any author (public feed), newest
+// first. Name kept for now — see the route's own comment.
 export const FriendsFeedItem = z.object({
   id: z.string(),
   userId: z.string(),
@@ -33,6 +34,10 @@ export const FriendsFeedItem = z.object({
   strikeCount: z.number().int(),
   struckByMe: z.boolean(),
   commentCount: z.number().int(),
+  // False for the requester's own catches too, alongside anyone else not followed —
+  // callers should also check userId against the signed-in user before showing a
+  // Follow button, since this flag alone doesn't distinguish "me" from "a stranger".
+  isFollowing: z.boolean(),
 })
 export type FriendsFeedItem = z.infer<typeof FriendsFeedItem>
 
