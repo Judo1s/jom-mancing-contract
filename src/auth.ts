@@ -15,6 +15,14 @@ export const LoginRequest = z.object({
 })
 export type LoginRequest = z.infer<typeof LoginRequest>
 
+// POST /api/auth/google. idToken is the Google-signed ID token obtained on-device via
+// expo-auth-session's Google provider; the server verifies its signature and audience
+// before trusting anything in it.
+export const GoogleAuthRequest = z.object({
+  idToken: z.string().min(1),
+})
+export type GoogleAuthRequest = z.infer<typeof GoogleAuthRequest>
+
 export const AuthUser = z.object({
   id: z.string(),
   email: z.string().email().nullable(),
