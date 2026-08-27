@@ -1,6 +1,7 @@
 export * from './common'
 export * from './auth'
 export * from './map'
+export * from './home'
 export * from './kolam'
 export * from './chatbot'
 export * from './catch-log'
