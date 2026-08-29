@@ -77,7 +77,15 @@ export type PostCommentRequest = z.infer<typeof PostCommentRequest>
 // GET /api/notifications — derived live from Strike/Follow/Comment, not a stored
 // table (see decision-log context in Jom-Mancing-Server's schema.prisma comment on
 // User.notificationsCheckedAt).
-export const NotificationType = z.enum(['STRIKE', 'FOLLOW', 'COMMENT'])
+// STRIKE/FOLLOW/COMMENT are derived from their own tables; the two CATCH_* values are
+// derived from Catch.status leaving PENDING. See Jom-Mancing-Server's lib/notifications.
+export const NotificationType = z.enum([
+  'STRIKE',
+  'FOLLOW',
+  'COMMENT',
+  'CATCH_VERIFIED',
+  'CATCH_REJECTED',
+])
 export type NotificationType = z.infer<typeof NotificationType>
 
 export const NotificationItem = z.object({

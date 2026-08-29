@@ -67,3 +67,38 @@ describe('CreateKolamPhotoRequest', () => {
     expect(() => CreateKolamPhotoRequest.parse({ url: 'https://cdn.example.com/a.jpg' })).not.toThrow()
   })
 })
+
+import { VerifyCatchRequest } from '../src/kolam'
+
+describe('VerifyCatchRequest', () => {
+  it('accepts a bare VERIFIED', () => {
+    expect(VerifyCatchRequest.safeParse({ status: 'VERIFIED' }).success).toBe(true)
+  })
+
+  it('requires a reason when rejecting', () => {
+    const result = VerifyCatchRequest.safeParse({ status: 'REJECTED' })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts REJECTED with a reason', () => {
+    const result = VerifyCatchRequest.safeParse({
+      status: 'REJECTED',
+      rejectionReason: 'Photo shows a different pond',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  // A reason on an approval is a copy-paste slip, not a silent no-op: it would be
+  // stored and shown to the angler under a "Verified" badge.
+  it('rejects a reason attached to VERIFIED', () => {
+    const result = VerifyCatchRequest.safeParse({
+      status: 'VERIFIED',
+      rejectionReason: 'oops',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects PENDING — an owner decision is always terminal', () => {
+    expect(VerifyCatchRequest.safeParse({ status: 'PENDING' }).success).toBe(false)
+  })
+})

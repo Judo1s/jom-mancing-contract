@@ -49,6 +49,11 @@ export const CatchLogItem = z.object({
   title: z.string().nullable(),
   speciesName: z.string().nullable(),
   spotName: z.string().nullable(),
+  // The pinned spot's id, not just its name. `spotName` alone is not enough: the app's
+  // edit form is built entirely from a CatchLogItem and PATCH writes
+  // `spotId: body.spotId ?? null`, so without this an angler editing any field of a
+  // pinned catch would silently unpin it from the kolam and drop off the leaderboard.
+  spotId: z.string().nullable(),
   photoUrl: z.string().nullable(),
   photoUrls: z.array(z.string()),
   weightGrams: z.number().int().nullable(),
@@ -57,6 +62,9 @@ export const CatchLogItem = z.object({
   note: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
   status: CatchStatus,
+  // Set only on a REJECTED catch — the owner's reason, shown to the angler on their
+  // catch log so a rejection is not indistinguishable from a bug.
+  rejectionReason: z.string().nullable(),
   published: z.boolean(),
 })
 export type CatchLogItem = z.infer<typeof CatchLogItem>

@@ -213,3 +213,59 @@ export const KolamPhotosResponse = z.object({
   photos: z.array(KolamPhotoManageItem),
 })
 export type KolamPhotosResponse = z.infer<typeof KolamPhotosResponse>
+
+// GET /api/kolam/[id]/catches — the owner's verification queue.
+//
+// Photos are the only evidence an owner has for a catch they did not personally weigh,
+// so they are part of this projection rather than something the dashboard fetches
+// separately.
+export const PendingCatchItem = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userName: z.string().nullable(),
+  userImage: z.string().nullable(),
+  title: z.string().nullable(),
+  speciesName: z.string().nullable(),
+  photoUrls: z.array(z.string()),
+  weightGrams: z.number().int().nullable(),
+  lengthMm: z.number().int().nullable(),
+  caughtAt: z.string(), // ISO datetime
+})
+export type PendingCatchItem = z.infer<typeof PendingCatchItem>
+
+export const KolamPendingCatchesResponse = z.object({
+  catches: z.array(PendingCatchItem),
+})
+export type KolamPendingCatchesResponse = z.infer<typeof KolamPendingCatchesResponse>
+
+// PATCH /api/kolam/[id]/catches/[catchId] — an owner's decision on one catch.
+//
+// PENDING is deliberately absent: this endpoint records a decision, and "undecide" is
+// not one. A catch returns to PENDING only via the resolver, when the angler edits the
+// spot or the weight (see lib/catch-verification).
+//
+// The reason is required on REJECTED and forbidden on VERIFIED. Without the first half
+// a rejection is silent and the angler cannot tell it from a bug; without the second, a
+// stray reason would be stored and shown beneath a "Verified" badge.
+export const VerifyCatchRequest = z
+  .object({
+    status: z.enum(['VERIFIED', 'REJECTED']),
+    rejectionReason: z.string().trim().min(1).max(500).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.status === 'REJECTED' && !value.rejectionReason) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['rejectionReason'],
+        message: 'A reason is required when rejecting a catch',
+      })
+    }
+    if (value.status === 'VERIFIED' && value.rejectionReason) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['rejectionReason'],
+        message: 'A rejection reason cannot accompany a verified catch',
+      })
+    }
+  })
+export type VerifyCatchRequest = z.infer<typeof VerifyCatchRequest>
