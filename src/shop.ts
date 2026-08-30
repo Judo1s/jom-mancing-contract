@@ -51,3 +51,59 @@ export const ShopDetail = z.object({
   items: z.array(ShopItem),
 })
 export type ShopDetail = z.infer<typeof ShopDetail>
+
+// ---------------------------------------------------------------------------
+// Shop-owner dashboard (jom-mancing-admin). Mirrors the Kolam-owner section
+// above — profile fields stay owner-editable, name/address/lat/lng stay
+// staff-only, same rationale as UpdateKolamProfileRequest.
+
+// GET /api/shop/mine
+export const ShopMineItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  rating: z.number().nullable(),
+})
+export type ShopMineItem = z.infer<typeof ShopMineItem>
+
+export const ShopMineListResponse = z.object({
+  shops: z.array(ShopMineItem),
+})
+export type ShopMineListResponse = z.infer<typeof ShopMineListResponse>
+
+// PATCH /api/shop/:id
+export const UpdateShopProfileRequest = z.object({
+  phone: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  website: z.string().nullable().optional(),
+  googleMapsUrl: z.string().nullable().optional(),
+  hours: z.string().optional(),
+})
+export type UpdateShopProfileRequest = z.infer<typeof UpdateShopProfileRequest>
+
+// POST /api/shop/:id/items
+export const CreateShopItemRequest = z.object({
+  name: z.string().min(1),
+  category: ShopItemCategory,
+  priceSen: SenAmount.nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+})
+export type CreateShopItemRequest = z.infer<typeof CreateShopItemRequest>
+
+// GET /api/shop/:id/items — distinct from ShopItem (public ShopDetail response, no
+// id) for the same reason as KolamPhotoManageItem: the owner dashboard needs an id
+// to target a specific item for deletion.
+export const ShopItemManageItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: ShopItemCategory,
+  priceSen: SenAmount.nullable(),
+  imageUrl: z.string().nullable(),
+})
+export type ShopItemManageItem = z.infer<typeof ShopItemManageItem>
+
+export const ShopItemsResponse = z.object({
+  items: z.array(ShopItemManageItem),
+})
+export type ShopItemsResponse = z.infer<typeof ShopItemsResponse>
