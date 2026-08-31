@@ -4,6 +4,7 @@ import {
   ReplaceKolamHoursRequest,
   CreateStockReleaseRequest,
   CreateKolamPhotoRequest,
+  VerifyCatchRequest,
 } from '../src/kolam'
 
 describe('UpdateKolamProfileRequest', () => {
@@ -67,8 +68,6 @@ describe('CreateKolamPhotoRequest', () => {
     expect(() => CreateKolamPhotoRequest.parse({ url: 'https://cdn.example.com/a.jpg' })).not.toThrow()
   })
 })
-
-import { VerifyCatchRequest } from '../src/kolam'
 
 describe('VerifyCatchRequest', () => {
   it('accepts a bare VERIFIED', () => {
