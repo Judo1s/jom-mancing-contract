@@ -10,6 +10,7 @@ export * from './billing'
 export * from './events'
 export * from './profile'
 export * from './private-spots'
+export * from './species'
 
 // Add one file per feature slice as each week's work starts — see
 // docs/development-plan.md in Jom-Mancing-App for the week-by-week order —
