@@ -27,7 +27,7 @@ export const AuthUser = z.object({
   id: z.string(),
   email: z.string().email().nullable(),
   name: z.string().nullable(),
-  role: z.enum(['ANGLER', 'KOLAM_OWNER', 'ADMIN']),
+  role: z.enum(['ANGLER', 'KOLAM_OWNER', 'SHOP_OWNER', 'ADMIN']),
   image: z.string().nullable(),
   bio: z.string().nullable(),
   state: z.string().nullable(),
