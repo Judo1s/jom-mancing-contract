@@ -80,6 +80,9 @@ export const LeaderboardEntry = z.object({
   userName: z.string().nullable(),
   userImage: z.string().nullable(),
   speciesName: z.string().nullable(),
+  // The catch's own cover photo — deliberately not userImage, which is the angler's
+  // avatar. The podium/row UI shows a photo of the fish, not of the person.
+  photoUrl: z.string().nullable(),
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   caughtAt: z.string(), // ISO datetime
