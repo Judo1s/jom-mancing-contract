@@ -51,3 +51,18 @@ export const ShopDetail = z.object({
   items: z.array(ShopItem),
 })
 export type ShopDetail = z.infer<typeof ShopDetail>
+
+// GET /api/shop/mine
+export const ShopMineItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  rating: z.number().nullable(),
+})
+export type ShopMineItem = z.infer<typeof ShopMineItem>
+
+export const ShopMineListResponse = z.object({
+  shops: z.array(ShopMineItem),
+})
+export type ShopMineListResponse = z.infer<typeof ShopMineListResponse>
