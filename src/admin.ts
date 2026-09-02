@@ -210,6 +210,11 @@ export const AdminPlacesResolveResponse = z.object({
 })
 export type AdminPlacesResolveResponse = z.infer<typeof AdminPlacesResolveResponse>
 
+// DELETE bodies carry only the reason. A separate schema rather than reusing the
+// update one, so a stray `name` in a delete request is a 400 rather than ignored.
+export const AdminDeleteRequest = z.object({ reason: Reason })
+export type AdminDeleteRequest = z.infer<typeof AdminDeleteRequest>
+
 // --- Shops -------------------------------------------------------------------
 
 export const AdminShopCreateRequest = z.object({
