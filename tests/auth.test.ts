@@ -6,6 +6,7 @@ describe('AuthUser.role', () => {
     id: 'u1',
     email: 'owner@example.com',
     name: 'Shop Owner',
+    username: 'shop_owner',
     image: null,
     bio: null,
     state: null,

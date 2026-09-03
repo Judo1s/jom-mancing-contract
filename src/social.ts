@@ -4,6 +4,9 @@ import { z } from 'zod'
 export const AnglerSummary = z.object({
   id: z.string(),
   name: z.string().nullable(),
+  // Display names are not unique — two anglers may both be "Ali" — so the handle is
+  // what tells search results apart.
+  username: z.string().nullable(),
   image: z.string().nullable(),
   isFollowing: z.boolean(),
 })
