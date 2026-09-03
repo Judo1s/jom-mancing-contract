@@ -7,6 +7,10 @@ import {
   AdminRoleUpdateRequest,
   AdminUserDetail,
   AdminUserListResponse,
+  AdminOwnerLinkRequest,
+  AdminKolamCreateRequest,
+  AdminPublishRequest,
+  AdminSummary,
 } from '../src/admin'
 
 describe('AdminRoleUpdateRequest', () => {
@@ -105,5 +109,76 @@ describe('AdminAuditLogResponse', () => {
 
   it('rejects a missing items field', () => {
     expect(() => AdminAuditLogResponse.parse({ nextCursor: null })).toThrow()
+  })
+})
+
+// --- Slice B: listings and ownership -----------------------------------------
+
+describe('AdminAction (slice B)', () => {
+  it('carries the slice B vocabulary', () => {
+    for (const action of [
+      'USER_ROLE_CHANGED',
+      'KOLAM_CREATED',
+      'KOLAM_UPDATED',
+      'KOLAM_PUBLISHED',
+      'KOLAM_UNPUBLISHED',
+      'KOLAM_DELETED',
+      'KOLAM_OWNER_LINKED',
+      'KOLAM_OWNER_UNLINKED',
+      'SHOP_CREATED',
+      'SHOP_UPDATED',
+      'SHOP_OWNER_LINKED',
+      'SHOP_OWNER_UNLINKED',
+      'SHOP_DEACTIVATED',
+      'ADMIN_ACTED_AS_OWNER',
+    ]) {
+      expect(AdminAction.safeParse(action).success).toBe(true)
+    }
+    expect(AdminAction.safeParse('NOT_A_REAL_ACTION').success).toBe(false)
+  })
+})
+
+describe('AdminOwnerLinkRequest', () => {
+  it('accepts a user id and a null (unlink), both with a reason', () => {
+    expect(AdminOwnerLinkRequest.safeParse({ userId: 'usr_1', reason: 'Verified by phone' }).success).toBe(true)
+    expect(AdminOwnerLinkRequest.safeParse({ userId: null, reason: 'Sold the pond' }).success).toBe(true)
+  })
+
+  it('rejects a blank or whitespace-only reason — the audit log exists to carry it', () => {
+    expect(AdminOwnerLinkRequest.safeParse({ userId: 'usr_1', reason: '' }).success).toBe(false)
+    expect(AdminOwnerLinkRequest.safeParse({ userId: 'usr_1', reason: '   ' }).success).toBe(false)
+  })
+})
+
+describe('AdminKolamCreateRequest', () => {
+  it('requires a name and plausible coordinates', () => {
+    const ok = { name: 'Kolam Sri Muda', latitude: 3.139, longitude: 101.6869, reason: 'New listing' }
+    expect(AdminKolamCreateRequest.safeParse(ok).success).toBe(true)
+    expect(AdminKolamCreateRequest.safeParse({ ...ok, latitude: 99 }).success).toBe(false)
+    expect(AdminKolamCreateRequest.safeParse({ ...ok, longitude: -200 }).success).toBe(false)
+    expect(AdminKolamCreateRequest.safeParse({ ...ok, name: '' }).success).toBe(false)
+  })
+})
+
+describe('AdminPublishRequest', () => {
+  it('takes a boolean and a reason', () => {
+    expect(AdminPublishRequest.safeParse({ isPublished: true, reason: 'Details complete' }).success).toBe(true)
+    expect(AdminPublishRequest.safeParse({ isPublished: 'yes', reason: 'x' }).success).toBe(false)
+  })
+})
+
+describe('AdminSummary', () => {
+  it('parses the triage counts', () => {
+    const parsed = AdminSummary.safeParse({
+      kolamTotal: 126,
+      kolamMissingPricing: 125,
+      kolamMissingOwner: 122,
+      kolamMissingHours: 34,
+      kolamMissingPhotos: 26,
+      kolamUnpublished: 2,
+      shopTotal: 4,
+      shopMissingOwner: 3,
+    })
+    expect(parsed.success).toBe(true)
   })
 })

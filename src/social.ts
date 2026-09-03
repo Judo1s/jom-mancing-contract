@@ -9,6 +9,8 @@ export const AnglerSummary = z.object({
 })
 export type AnglerSummary = z.infer<typeof AnglerSummary>
 
+// Also reused as-is for GET /api/users/[id]/followers and /following — same
+// requester-relative `isFollowing` shape, just a different base list.
 export const UserSearchResponse = z.object({
   users: z.array(AnglerSummary),
 })

@@ -43,6 +43,24 @@ export const ProfileResponse = z.object({
 })
 export type ProfileResponse = z.infer<typeof ProfileResponse>
 
+// GET /api/users/[id]/profile — a public, non-owner read of another angler's
+// profile. Deliberately narrower than ProfileResponse: no email, and no saved-spot
+// data, which stays private to the account owner.
+export const PublicProfileResponse = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  image: z.string().nullable(),
+  bio: z.string().nullable(),
+  state: z.string().nullable(),
+  isPremium: z.boolean(),
+  stats: ProfileStats,
+  followerCount: z.number().int(),
+  followingCount: z.number().int(),
+  // Relative to the requester, not the profile owner.
+  isFollowing: z.boolean(),
+})
+export type PublicProfileResponse = z.infer<typeof PublicProfileResponse>
+
 // PATCH /api/profile/me
 export const UpdateProfileRequest = z.object({
   name: z.string().trim().min(1).optional(),
