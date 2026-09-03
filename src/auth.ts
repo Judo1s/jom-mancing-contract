@@ -1,10 +1,12 @@
 import { z } from 'zod'
+import { Username } from './common'
 
 // POST /api/auth/register
 export const RegisterRequest = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().min(1),
+  username: Username,
 })
 export type RegisterRequest = z.infer<typeof RegisterRequest>
 
@@ -27,6 +29,10 @@ export const AuthUser = z.object({
   id: z.string(),
   email: z.string().email().nullable(),
   name: z.string().nullable(),
+  // Null means this account has never picked a handle — Google sign-ins and every
+  // account created before usernames existed. The app treats that as "not finished
+  // signing up" and shows the pick-a-username screen instead of the tabs.
+  username: z.string().nullable(),
   role: z.enum(['ANGLER', 'KOLAM_OWNER', 'SHOP_OWNER', 'ADMIN']),
   image: z.string().nullable(),
   bio: z.string().nullable(),
