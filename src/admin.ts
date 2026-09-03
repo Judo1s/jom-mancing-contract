@@ -258,6 +258,7 @@ export type AdminShopListResponse = z.infer<typeof AdminShopListResponse>
 export const AdminShopDetail = AdminShopListItem.extend({
   latitude: z.number(),
   longitude: z.number(),
+  hours: z.string(),
   phone: z.string().nullable(),
   category: z.string().nullable(),
   website: z.string().nullable(),
