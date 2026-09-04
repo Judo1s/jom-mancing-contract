@@ -29,6 +29,7 @@ export type ProfileStats = z.infer<typeof ProfileStats>
 export const ProfileResponse = z.object({
   id: z.string(),
   name: z.string().nullable(),
+  role: z.enum(['ANGLER', 'KOLAM_OWNER', 'SHOP_OWNER', 'ADMIN']),
   username: z.string().nullable(),
   // When this angler may next change their username, computed server-side from the
   // cooldown so the app never re-does that arithmetic. Null means "right now" — either
@@ -55,6 +56,7 @@ export type ProfileResponse = z.infer<typeof ProfileResponse>
 export const PublicProfileResponse = z.object({
   id: z.string(),
   name: z.string().nullable(),
+  role: z.enum(['ANGLER', 'KOLAM_OWNER', 'SHOP_OWNER', 'ADMIN']),
   username: z.string().nullable(),
   image: z.string().nullable(),
   bio: z.string().nullable(),
