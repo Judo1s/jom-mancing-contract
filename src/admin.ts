@@ -27,6 +27,11 @@ export const AdminAction = z.enum([
   // change — the guard runs before the handler, so it cannot share the mutation's
   // transaction. See the spec's "Content editing" section.
   'ADMIN_ACTED_AS_OWNER',
+  // Slice — tournament moderation and promotion.
+  'TOURNAMENT_APPROVE',
+  'TOURNAMENT_REJECT',
+  'TOURNAMENT_TAKEDOWN',
+  'TOURNAMENT_SET_PROMOTION',
 ])
 export type AdminAction = z.infer<typeof AdminAction>
 
