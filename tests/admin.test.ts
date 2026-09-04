@@ -11,6 +11,7 @@ import {
   AdminKolamCreateRequest,
   AdminPublishRequest,
   AdminSummary,
+  AdminMapResponse,
 } from '../src/admin'
 
 describe('AdminRoleUpdateRequest', () => {
@@ -180,5 +181,84 @@ describe('AdminSummary', () => {
       shopMissingOwner: 3,
     })
     expect(parsed.success).toBe(true)
+  })
+})
+
+describe('AdminMapResponse', () => {
+  const kolamPin = {
+    id: 'k1',
+    spotId: 's1',
+    name: 'Kolam Sri Muda',
+    latitude: 3.0738,
+    longitude: 101.5183,
+    state: 'Selangor',
+    isPublished: true,
+    ownerId: null,
+    ownerName: null,
+    pricingCount: 0,
+    photoCount: 2,
+    hoursCount: 7,
+  }
+  const shopPin = {
+    id: 'sh1',
+    name: 'Kedai Pancing Ali',
+    latitude: 3.1,
+    longitude: 101.6,
+    address: 'Jalan Besar 12',
+    isActive: true,
+    ownerId: 'u1',
+    ownerName: 'Ali',
+    itemCount: 14,
+  }
+
+  it('accepts a payload carrying both layers and the uncoordinated counts', () => {
+    const parsed = AdminMapResponse.parse({
+      kolam: [kolamPin],
+      shops: [shopPin],
+      kolamWithoutCoordinates: 2,
+      shopsWithoutCoordinates: 0,
+    })
+    expect(parsed.kolam[0].name).toBe('Kolam Sri Muda')
+    expect(parsed.shops[0].itemCount).toBe(14)
+    expect(parsed.kolamWithoutCoordinates).toBe(2)
+  })
+
+  it('accepts an empty catalogue', () => {
+    const parsed = AdminMapResponse.parse({
+      kolam: [],
+      shops: [],
+      kolamWithoutCoordinates: 0,
+      shopsWithoutCoordinates: 0,
+    })
+    expect(parsed.kolam).toEqual([])
+  })
+
+  // Coordinates are what the map is for: a pin missing one cannot be drawn, so the
+  // schema must reject it here rather than let it through as a NaN marker.
+  it('rejects a pin with a missing or non-numeric coordinate', () => {
+    const { latitude: _lat, ...noLat } = kolamPin
+    expect(() =>
+      AdminMapResponse.parse({ kolam: [noLat], shops: [], kolamWithoutCoordinates: 0, shopsWithoutCoordinates: 0 }),
+    ).toThrow()
+    expect(() =>
+      AdminMapResponse.parse({
+        kolam: [{ ...kolamPin, longitude: '101.5' }],
+        shops: [],
+        kolamWithoutCoordinates: 0,
+        shopsWithoutCoordinates: 0,
+      }),
+    ).toThrow()
+  })
+
+  // Drafts are the reason this endpoint exists separately from the public /api/map,
+  // so an unpublished pin must survive the schema.
+  it('keeps an unpublished kolam', () => {
+    const parsed = AdminMapResponse.parse({
+      kolam: [{ ...kolamPin, isPublished: false }],
+      shops: [],
+      kolamWithoutCoordinates: 0,
+      shopsWithoutCoordinates: 0,
+    })
+    expect(parsed.kolam[0].isPublished).toBe(false)
   })
 })

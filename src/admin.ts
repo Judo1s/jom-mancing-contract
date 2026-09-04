@@ -266,3 +266,54 @@ export const AdminShopDetail = AdminShopListItem.extend({
   ownerEmail: z.string().nullable(),
 })
 export type AdminShopDetail = z.infer<typeof AdminShopDetail>
+
+// GET /api/admin/map — every kolam and shop that can be put on a map, in one payload.
+//
+// Deliberately not the public MapPinsResponse: that one filters to
+// `spot.isPublished` and carries no shops, because it answers "what can an angler
+// see". This one answers "where is everything staff own", so drafts are included and
+// flagged, and the gap counts ride along so the map can filter on the same criteria
+// the Overview cards use without a second round trip.
+//
+// No cursor. Demo scale (~130 kolam, a handful of shops) — same reasoning as the
+// unpaginated /api/map. A viewport bounding box is the change to make if that stops
+// being true, not a cursor, because a map cannot render half a page.
+export const AdminMapKolamPin = z.object({
+  id: z.string(),
+  spotId: z.string(),
+  name: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  state: z.string().nullable(),
+  isPublished: z.boolean(),
+  ownerId: z.string().nullable(),
+  ownerName: z.string().nullable(),
+  pricingCount: z.number().int(),
+  photoCount: z.number().int(),
+  hoursCount: z.number().int(),
+})
+export type AdminMapKolamPin = z.infer<typeof AdminMapKolamPin>
+
+export const AdminMapShopPin = z.object({
+  id: z.string(),
+  name: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  address: z.string(),
+  isActive: z.boolean(),
+  ownerId: z.string().nullable(),
+  ownerName: z.string().nullable(),
+  itemCount: z.number().int(),
+})
+export type AdminMapShopPin = z.infer<typeof AdminMapShopPin>
+
+// `*WithoutCoordinates` are counts, not lists: a row with no usable latitude/longitude
+// cannot be drawn, and dropping it silently would leave the map quietly disagreeing
+// with the Listings count. The map states the shortfall instead.
+export const AdminMapResponse = z.object({
+  kolam: z.array(AdminMapKolamPin),
+  shops: z.array(AdminMapShopPin),
+  kolamWithoutCoordinates: z.number().int(),
+  shopsWithoutCoordinates: z.number().int(),
+})
+export type AdminMapResponse = z.infer<typeof AdminMapResponse>
