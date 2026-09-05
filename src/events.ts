@@ -1,9 +1,11 @@
 import { z } from 'zod'
 
 // GET /api/events — upcoming tournaments at published spots, for Home's Events rail.
-// Read-only: no create/edit flow exists in the app (kolam-owner dashboards are
-// deferred, see Jom-Mancing-App/docs/decision-log.md #17); Tournament rows are
-// managed directly in the database, same as isFeatured/isPromoted elsewhere.
+// Owners create and edit tournaments from their kolam dashboard; staff review, approve,
+// reject, and take them down from /admin/events (see Jom-Mancing-App/docs/decision-log.md
+// #42). Only APPROVED rows reach this public shape — DRAFT, PENDING, and REJECTED
+// tournaments stay invisible to it. Promotion (isPromoted/promotedUntil) remains
+// staff-only, same as elsewhere.
 export const EventItem = z.object({
   id: z.string(),
   spotId: z.string(),
