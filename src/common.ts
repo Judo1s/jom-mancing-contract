@@ -46,3 +46,35 @@ export const ErrorResponse = z.object({
   error: z.string(),
 })
 export type ErrorResponse = z.infer<typeof ErrorResponse>
+
+// The 13 states plus 3 federal territories, in the order a Malaysian picker expects
+// (alphabetical, federal territories last). This is the codebase's first canonical list
+// of them: `state` is free text on User, Kolam and Spot alike, and stays that way —
+// onboarding simply only ever writes one of these values into User.state.
+export const MALAYSIAN_STATES = [
+  'Johor',
+  'Kedah',
+  'Kelantan',
+  'Melaka',
+  'Negeri Sembilan',
+  'Pahang',
+  'Perak',
+  'Perlis',
+  'Pulau Pinang',
+  'Sabah',
+  'Sarawak',
+  'Selangor',
+  'Terengganu',
+  'W.P. Kuala Lumpur',
+  'W.P. Labuan',
+  'W.P. Putrajaya',
+] as const
+
+export const MalaysianState = z.enum(MALAYSIAN_STATES)
+export type MalaysianState = z.infer<typeof MalaysianState>
+
+// Mirrors the ExperienceLevel enum in Jom-Mancing-Server's prisma/schema.prisma, kept
+// in sync by hand like SpotType above. Drives which of three hardcoded sentences the
+// chatbot's system prompt includes — see the server's lib/gemini.ts.
+export const ExperienceLevel = z.enum(['BEGINNER', 'CASUAL', 'OTAI'])
+export type ExperienceLevel = z.infer<typeof ExperienceLevel>

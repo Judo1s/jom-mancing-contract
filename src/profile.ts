@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { Username } from './common'
+import { ExperienceLevel, Username } from './common'
+import { MAX_TARGET_SPECIES } from './onboarding'
 
 // Shared between GET /api/profile/me's preview (top 3) and GET /api/saved-spots' full list.
 export const SavedSpotItem = z.object({
@@ -58,6 +59,10 @@ export const ProfileResponse = z.object({
   savedSpotsPreview: z.array(SavedSpotItem),
   savedSpotCount: z.number().int(),
   savedSpotLimit: z.number().int().nullable(), // null == unlimited (premium)
+  // Read back for the profile editor's own form. Not on AuthUser, which carries only
+  // onboardingCompletedAt — the gate is all the app needs at auth time.
+  experienceLevel: ExperienceLevel.nullable(),
+  targetSpeciesIds: z.array(z.string()),
 }).extend(SocialLinks.shape)
 export type ProfileResponse = z.infer<typeof ProfileResponse>
 
@@ -89,6 +94,12 @@ export const UpdateProfileRequest = z.object({
   bio: z.string().trim().nullable().optional(),
   state: z.string().trim().nullable().optional(),
   image: z.string().nullable().optional(),
+  // Both also settable here, not only through onboarding: the migration backfills
+  // onboardingCompletedAt for every pre-existing account, so those anglers never see
+  // the flow and would otherwise have no way to set these at all. It is also the only
+  // way to change an answer after onboarding.
+  experienceLevel: ExperienceLevel.nullable().optional(),
+  targetSpeciesIds: z.array(z.string().min(1)).max(MAX_TARGET_SPECIES).optional(),
 }).extend({
   // Each a full URL or null (never '') — the app converts an emptied field to null
   // before sending, same as bio/state, so a link can only ever be a valid link or absent.

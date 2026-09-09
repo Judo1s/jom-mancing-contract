@@ -10,6 +10,7 @@ describe('AuthUser.role', () => {
     image: null,
     bio: null,
     state: null,
+    onboardingCompletedAt: null,
   }
 
   it('accepts SHOP_OWNER', () => {

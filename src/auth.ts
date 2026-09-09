@@ -37,6 +37,12 @@ export const AuthUser = z.object({
   image: z.string().nullable(),
   bio: z.string().nullable(),
   state: z.string().nullable(),
+  // ISO datetime, or null for "has not finished onboarding". Together with a null
+  // `username` this is the app's entire gate condition (see RootNavigator): either one
+  // being null stands the onboarding stack in for the tabs. Deliberately the only
+  // onboarding field on AuthUser — the answers themselves come from /api/profile/me,
+  // because the gate is all the app needs at auth time.
+  onboardingCompletedAt: z.string().nullable(),
 })
 export type AuthUser = z.infer<typeof AuthUser>
 
