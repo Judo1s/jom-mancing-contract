@@ -2,11 +2,17 @@ import { z } from 'zod'
 import { Username } from './common'
 
 // POST /api/auth/register
+// name and username moved to onboarding step 1 (everyone picks a name and handle
+// there now, not just Google sign-ins) — both are optional here so a fresh
+// email/password signup can omit them. They stay accepted rather than being
+// deleted: old app builds still send both, and the published response shapes are
+// a compatibility contract ("old mobile builds must keep working for at least one
+// app release"). An optional field accepts an old client unchanged.
 export const RegisterRequest = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  name: z.string().min(1),
-  username: Username,
+  name: z.string().min(1).optional(),
+  username: Username.optional(),
 })
 export type RegisterRequest = z.infer<typeof RegisterRequest>
 

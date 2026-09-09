@@ -34,14 +34,25 @@ describe('Username', () => {
 })
 
 describe('RegisterRequest.username', () => {
-  const base = { email: 'ali@example.com', password: 'hunter2hunter2', name: 'Ali' }
+  const base = { email: 'ali@example.com', password: 'hunter2hunter2' }
 
-  it('is required and normalised', () => {
-    expect(RegisterRequest.parse({ ...base, username: ' Ali_99 ' }).username).toBe('ali_99')
+  // name and username moved to onboarding step 1, so a fresh signup sends neither.
+  it('parses a body with only email and password', () => {
+    const parsed = RegisterRequest.parse(base)
+    expect(parsed.name).toBeUndefined()
+    expect(parsed.username).toBeUndefined()
   })
 
-  it('rejects a signup with no username', () => {
-    expect(() => RegisterRequest.parse(base)).toThrow()
+  // Old app builds still collect name/username on the signup screen itself.
+  it('parses a body that still includes name and username (an old client)', () => {
+    const parsed = RegisterRequest.parse({ ...base, name: 'Ali', username: 'Ali_99' })
+    expect(parsed.name).toBe('Ali')
+    expect(parsed.username).toBe('ali_99')
+  })
+
+  it('when present, is still normalised and validated by the Username schema', () => {
+    expect(RegisterRequest.parse({ ...base, username: ' Ali_99 ' }).username).toBe('ali_99')
+    expect(() => RegisterRequest.parse({ ...base, username: 'a' })).toThrow()
   })
 })
 
