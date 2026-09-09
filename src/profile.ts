@@ -62,6 +62,10 @@ export const ProfileResponse = z.object({
   // Read back for the profile editor's own form. Not on AuthUser, which carries only
   // onboardingCompletedAt — the gate is all the app needs at auth time.
   experienceLevel: ExperienceLevel.nullable(),
+  // Deliberately no `.max(MAX_TARGET_SPECIES)` here, unlike the write-side schemas below.
+  // This is a read-back, not a write invariant: if a server bug ever produced six ids,
+  // re-validating the cap on the way out would turn that bug into a blank profile screen
+  // instead of a slightly-too-long list rendering. Let it through and show what's there.
   targetSpeciesIds: z.array(z.string()),
 }).extend(SocialLinks.shape)
 export type ProfileResponse = z.infer<typeof ProfileResponse>

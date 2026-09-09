@@ -22,7 +22,10 @@ export const CompleteOnboardingRequest = z.object({
   targetSpeciesIds: z
     .array(z.string().min(1))
     .max(MAX_TARGET_SPECIES)
-    .refine((ids) => new Set(ids).size === ids.length, 'Duplicate species id'),
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: 'Duplicate species id',
+      path: ['targetSpeciesIds'],
+    }),
   // Step 6 is skippable, so both arrive absent when skipped and null when cleared —
   // same shape UpdateProfileRequest already uses for bio.
   bio: z.string().trim().nullable().optional(),
