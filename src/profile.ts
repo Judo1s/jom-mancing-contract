@@ -25,6 +25,17 @@ export const ProfileStats = z.object({
 })
 export type ProfileStats = z.infer<typeof ProfileStats>
 
+// Social profile links an angler may attach to their account — all optional, all
+// public. Shared between ProfileResponse and PublicProfileResponse so the owner's own
+// view and everyone else's view of the same account never drift.
+export const SocialLinks = z.object({
+  instagramUrl: z.string().nullable(),
+  facebookUrl: z.string().nullable(),
+  tiktokUrl: z.string().nullable(),
+  youtubeUrl: z.string().nullable(),
+})
+export type SocialLinks = z.infer<typeof SocialLinks>
+
 // GET /api/profile/me
 export const ProfileResponse = z.object({
   id: z.string(),
@@ -47,7 +58,7 @@ export const ProfileResponse = z.object({
   savedSpotsPreview: z.array(SavedSpotItem),
   savedSpotCount: z.number().int(),
   savedSpotLimit: z.number().int().nullable(), // null == unlimited (premium)
-})
+}).extend(SocialLinks.shape)
 export type ProfileResponse = z.infer<typeof ProfileResponse>
 
 // GET /api/users/[id]/profile — a public, non-owner read of another angler's
@@ -67,7 +78,7 @@ export const PublicProfileResponse = z.object({
   followingCount: z.number().int(),
   // Relative to the requester, not the profile owner.
   isFollowing: z.boolean(),
-})
+}).extend(SocialLinks.shape)
 export type PublicProfileResponse = z.infer<typeof PublicProfileResponse>
 
 // PATCH /api/profile/me. Deliberately no `username` here: a username change is rate
@@ -78,6 +89,13 @@ export const UpdateProfileRequest = z.object({
   bio: z.string().trim().nullable().optional(),
   state: z.string().trim().nullable().optional(),
   image: z.string().nullable().optional(),
+}).extend({
+  // Each a full URL or null (never '') — the app converts an emptied field to null
+  // before sending, same as bio/state, so a link can only ever be a valid link or absent.
+  instagramUrl: z.string().trim().url().nullable().optional(),
+  facebookUrl: z.string().trim().url().nullable().optional(),
+  tiktokUrl: z.string().trim().url().nullable().optional(),
+  youtubeUrl: z.string().trim().url().nullable().optional(),
 })
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequest>
 
