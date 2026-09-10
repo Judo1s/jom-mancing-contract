@@ -13,6 +13,7 @@ export * from './tournaments'
 export * from './profile'
 export * from './private-spots'
 export * from './species'
+export * from './onboarding'
 export * from './admin'
 
 // Add one file per feature slice as each week's work starts — see

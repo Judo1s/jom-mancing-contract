@@ -2,11 +2,17 @@ import { z } from 'zod'
 import { Username } from './common'
 
 // POST /api/auth/register
+// name and username moved to onboarding step 1 (everyone picks a name and handle
+// there now, not just Google sign-ins) — both are optional here so a fresh
+// email/password signup can omit them. They stay accepted rather than being
+// deleted: old app builds still send both, and the published request shapes are
+// a compatibility contract ("old mobile builds must keep working for at least one
+// app release"). An optional field accepts an old client unchanged.
 export const RegisterRequest = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  name: z.string().min(1),
-  username: Username,
+  name: z.string().min(1).optional(),
+  username: Username.optional(),
 })
 export type RegisterRequest = z.infer<typeof RegisterRequest>
 
@@ -37,6 +43,12 @@ export const AuthUser = z.object({
   image: z.string().nullable(),
   bio: z.string().nullable(),
   state: z.string().nullable(),
+  // ISO datetime, or null for "has not finished onboarding". Together with a null
+  // `username` this is the app's entire gate condition (see RootNavigator): either one
+  // being null stands the onboarding stack in for the tabs. Deliberately the only
+  // onboarding field on AuthUser — the answers themselves come from /api/profile/me,
+  // because the gate is all the app needs at auth time.
+  onboardingCompletedAt: z.string().nullable(),
 })
 export type AuthUser = z.infer<typeof AuthUser>
 
