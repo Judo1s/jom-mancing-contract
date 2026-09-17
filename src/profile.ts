@@ -37,6 +37,18 @@ export const SocialLinks = z.object({
 })
 export type SocialLinks = z.infer<typeof SocialLinks>
 
+// One row of GET /api/profile/me's `kolamRankings` — the angler's current rank at a
+// kolam they have a verified, published, weighed catch at. Every kolam they're ranked
+// at, not just podium ones; see the profile-kolam-rankings design spec §5.1.
+export const KolamRankingItem = z.object({
+  kolamId: z.string(),
+  kolamName: z.string(),
+  rank: z.number().int(),
+  weightGrams: z.number().int(),
+  catchId: z.string(),
+})
+export type KolamRankingItem = z.infer<typeof KolamRankingItem>
+
 // GET /api/profile/me
 export const ProfileResponse = z.object({
   id: z.string(),
@@ -67,6 +79,8 @@ export const ProfileResponse = z.object({
   // re-validating the cap on the way out would turn that bug into a blank profile screen
   // instead of a slightly-too-long list rendering. Let it through and show what's there.
   targetSpeciesIds: z.array(z.string()),
+  // Every kolam this angler is currently ranked at — see KolamRankingItem.
+  kolamRankings: z.array(KolamRankingItem),
 }).extend(SocialLinks.shape)
 export type ProfileResponse = z.infer<typeof ProfileResponse>
 

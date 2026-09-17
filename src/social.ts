@@ -90,17 +90,26 @@ export const NotificationType = z.enum([
   'COMMENT',
   'CATCH_VERIFIED',
   'CATCH_REJECTED',
+  // No human actor, unlike every type above — see the profile-kolam-rankings design
+  // spec §3 for why that's a deliberate departure rather than an oversight.
+  'RANK_ENTERED_PODIUM',
+  'RANK_LEFT_PODIUM',
 ])
 export type NotificationType = z.infer<typeof NotificationType>
 
 export const NotificationItem = z.object({
   type: NotificationType,
-  actorId: z.string(),
+  // Null on RANK_ENTERED_PODIUM/RANK_LEFT_PODIUM — those have no human actor.
+  actorId: z.string().nullable(),
   actorName: z.string().nullable(),
   actorImage: z.string().nullable(),
   catchId: z.string().nullable(),
   catchPhotoUrl: z.string().nullable(),
   catchSpeciesName: z.string().nullable(),
+  // Populated only on RANK_ENTERED_PODIUM/RANK_LEFT_PODIUM; null otherwise.
+  kolamId: z.string().nullable(),
+  kolamName: z.string().nullable(),
+  rank: z.number().int().nullable(),
   createdAt: z.string(), // ISO datetime
   unread: z.boolean(),
 })
