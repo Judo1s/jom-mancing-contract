@@ -86,6 +86,11 @@ export const CatchLogItem = z.object({
   rejectionReason: z.string().nullable(),
   published: z.boolean(),
   submittedForVerification: z.boolean(),
+  // Same kudos-style Strike counts the public feed shows (see FriendsFeedItem) — an
+  // angler can strike their own catch too, so this carries a real count/flag rather
+  // than being omitted.
+  strikeCount: z.number().int(),
+  struckByMe: z.boolean(),
 })
 export type CatchLogItem = z.infer<typeof CatchLogItem>
 
