@@ -35,6 +35,17 @@ export const FriendsFeedItem = z.object({
   lengthMm: z.number().int().nullable(),
   baitUsed: z.string().nullable(),
   note: z.string().nullable(),
+  // Where it was caught, for the location chip on the post. Null when the angler
+  // pinned no spot — the picker is optional.
+  //
+  // Safe to expose despite Spot.ownerId privacy: every read that fills this goes
+  // through FEED_CATCH_WHERE (which excludes catches at anybody's private spot) or
+  // is the viewer's own catch, where the spot is already theirs. See lib/catches.ts.
+  //
+  // Name only, deliberately no coordinates: the feed is public, and a lat/lng here
+  // would be the exact leak the CATCH_NOT_AT_PRIVATE_SPOT comment warns about the
+  // moment the visibility rule above is ever loosened.
+  spotName: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
   strikeCount: z.number().int(),
   struckByMe: z.boolean(),
