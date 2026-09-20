@@ -12,6 +12,7 @@ const socialItem = {
   kolamId: null,
   kolamName: null,
   rank: null,
+  rejectionReason: null,
   createdAt: '2026-09-18T02:00:00.000Z',
   unread: true,
 }
@@ -41,6 +42,7 @@ describe('NotificationItem', () => {
         kolamId: 'kolam_1',
         kolamName: 'Kolam Pak Man',
         rank: null,
+        rejectionReason: null,
       }),
     ).not.toThrow()
   })

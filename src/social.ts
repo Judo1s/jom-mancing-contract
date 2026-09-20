@@ -115,7 +115,12 @@ export type NotificationType = z.infer<typeof NotificationType>
 
 export const NotificationItem = z.object({
   type: NotificationType,
-  // Null on RANK_ENTERED_PODIUM/RANK_LEFT_PODIUM — those have no human actor.
+  // Null on RANK_ENTERED_PODIUM/RANK_LEFT_PODIUM — those have no human actor — and
+  // deliberately null on CATCH_VERIFIED/CATCH_REJECTED too, even though a human did
+  // decide those. A decision can come from the kolam's owner OR from internal staff
+  // working the cross-kolam queue, and naming staff to the angler they just rejected
+  // puts a real person's name and face on a judgement the organisation made. The
+  // decision is the organisation's; the individual is not the angler's business.
   actorId: z.string().nullable(),
   actorName: z.string().nullable(),
   actorImage: z.string().nullable(),
@@ -126,6 +131,11 @@ export const NotificationItem = z.object({
   kolamId: z.string().nullable(),
   kolamName: z.string().nullable(),
   rank: z.number().int().nullable(),
+  // Only ever set on CATCH_REJECTED, and only when the decider gave a reason (they are
+  // required to — see VerifyCatchRequest). Carried here rather than left for the catch
+  // detail screen alone: an unexplained rejection with no actor to ask is the worst of
+  // both worlds, so the reason travels with the notification that delivers the news.
+  rejectionReason: z.string().nullable(),
   createdAt: z.string(), // ISO datetime
   unread: z.boolean(),
 })

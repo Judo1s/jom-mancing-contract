@@ -13,7 +13,7 @@ describe('NotificationItem', () => {
     type: 'RANK_ENTERED_PODIUM' as const,
     actorId: null, actorName: null, actorImage: null,
     catchId: 'c1', catchPhotoUrl: null, catchSpeciesName: null,
-    kolamId: 'k1', kolamName: 'Kolam X', rank: 2,
+    kolamId: 'k1', kolamName: 'Kolam X', rank: 2, rejectionReason: null,
     createdAt: new Date().toISOString(), unread: true,
   }
 
@@ -26,7 +26,7 @@ describe('NotificationItem', () => {
       NotificationItem.parse({
         type: 'STRIKE', actorId: 'u1', actorName: 'Bob', actorImage: null,
         catchId: 'c1', catchPhotoUrl: null, catchSpeciesName: null,
-        kolamId: null, kolamName: null, rank: null,
+        kolamId: null, kolamName: null, rank: null, rejectionReason: null,
         createdAt: new Date().toISOString(), unread: false,
       }),
     ).not.toThrow()
