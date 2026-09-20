@@ -32,6 +32,11 @@ export const AdminAction = z.enum([
   'TOURNAMENT_REJECT',
   'TOURNAMENT_TAKEDOWN',
   'TOURNAMENT_SET_PROMOTION',
+  // Slice — catch verification. Written by the admin queue when staff decide a catch.
+  // Distinct from ADMIN_ACTED_AS_OWNER, which records that a guard admitted someone on
+  // their role; these two record the decision itself, inside its transaction.
+  'CATCH_VERIFIED',
+  'CATCH_REJECTED',
 ])
 export type AdminAction = z.infer<typeof AdminAction>
 
@@ -203,6 +208,9 @@ export const AdminSummary = z.object({
   kolamUnpublished: z.number().int(),
   shopTotal: z.number().int(),
   shopMissingOwner: z.number().int(),
+  // How many catches are waiting on a staff decision. Near-zero while
+  // AUTO_VERIFY_UNOWNED_KOLAM is true — only owner-registered kolam queue up.
+  pendingCatches: z.number().int(),
 })
 export type AdminSummary = z.infer<typeof AdminSummary>
 
@@ -322,3 +330,33 @@ export const AdminMapResponse = z.object({
   shopsWithoutCoordinates: z.number().int(),
 })
 export type AdminMapResponse = z.infer<typeof AdminMapResponse>
+
+// GET /api/admin/catches — the cross-kolam verification queue.
+//
+// PendingCatchItem (kolam.ts) is the owner's view of the same row. An owner already
+// knows which pond they run; staff are looking at every pond at once, so the kolam's
+// identity has to travel with each row. Declared separately rather than extending that
+// schema: the two projections answer to different endpoints and should be free to drift.
+export const AdminPendingCatchItem = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userName: z.string().nullable(),
+  userImage: z.string().nullable(),
+  title: z.string().nullable(),
+  speciesName: z.string().nullable(),
+  // The only evidence staff have for a catch they did not weigh — same reasoning as
+  // PendingCatchItem's own note.
+  photoUrls: z.array(z.string()),
+  weightGrams: z.number().int().nullable(),
+  lengthMm: z.number().int().nullable(),
+  caughtAt: z.string(), // ISO datetime
+  kolamId: z.string(),
+  kolamName: z.string(),
+})
+export type AdminPendingCatchItem = z.infer<typeof AdminPendingCatchItem>
+
+export const AdminPendingCatchesResponse = z.object({
+  catches: z.array(AdminPendingCatchItem),
+  nextCursor: z.string().nullable(),
+})
+export type AdminPendingCatchesResponse = z.infer<typeof AdminPendingCatchesResponse>
