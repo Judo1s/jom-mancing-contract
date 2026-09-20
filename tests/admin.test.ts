@@ -179,6 +179,7 @@ describe('AdminSummary', () => {
       kolamUnpublished: 2,
       shopTotal: 4,
       shopMissingOwner: 3,
+      pendingCatches: 5,
     })
     expect(parsed.success).toBe(true)
   })
