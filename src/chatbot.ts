@@ -98,3 +98,24 @@ export const SendMessageResponse = z.object({
   reply: ChatMessageItem,
 })
 export type SendMessageResponse = z.infer<typeof SendMessageResponse>
+
+// POST /api/chatbot/stream — newline-delimited JSON, one event per line. `step` and
+// `text` arrive while the answer is prepared; exactly one `done` or `error` ends it.
+// Clients should ignore event types and step codes they do not know.
+export const ChatProgressStep = z.enum([
+  'THINKING',
+  'SEARCH_KOLAM',
+  'LOOKUP_SPECIES',
+  'CHECK_SCHEDULE',
+  'SEARCH_YOUTUBE',
+  'WRITING',
+])
+export type ChatProgressStep = z.infer<typeof ChatProgressStep>
+
+export const ChatStreamEvent = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('step'), step: ChatProgressStep, label: z.string().optional() }),
+  z.object({ type: z.literal('text'), delta: z.string() }),
+  z.object({ type: z.literal('done'), threadId: z.string(), reply: ChatMessageItem }),
+  z.object({ type: z.literal('error'), message: z.string() }),
+])
+export type ChatStreamEvent = z.infer<typeof ChatStreamEvent>
