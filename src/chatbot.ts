@@ -3,11 +3,64 @@ import { z } from 'zod'
 export const ChatRole = z.enum(['USER', 'ASSISTANT'])
 export type ChatRole = z.infer<typeof ChatRole>
 
+// Visual supplements Digital Otai attaches beneath a reply. Built server-side from tool
+// results only, never from model text. Optional on ChatMessageItem: absent on user
+// messages, on text-only replies, and on every message stored before 0.41.0.
+export const ChatSpeciesPhoto = z.object({
+  type: z.literal('SPECIES'),
+  speciesId: z.string(),
+  malayName: z.string(),
+  englishName: z.string().nullable(),
+  scientificName: z.string().nullable(),
+  imageUrl: z.string(),
+  // Licence attribution (CC BY-SA) — must be shown wherever the image is.
+  imageCredit: z.string().nullable(),
+})
+export type ChatSpeciesPhoto = z.infer<typeof ChatSpeciesPhoto>
+
+export const ChatYoutubeVideo = z.object({
+  type: z.literal('YOUTUBE_VIDEO'),
+  videoId: z.string(),
+  title: z.string(),
+  channelTitle: z.string(),
+  thumbnailUrl: z.string(),
+})
+export type ChatYoutubeVideo = z.infer<typeof ChatYoutubeVideo>
+
+export const ChatCatchPhoto = z.object({
+  type: z.literal('CATCH_PHOTO'),
+  catchId: z.string(),
+  imageUrl: z.string(),
+  speciesName: z.string().nullable(),
+  weightGrams: z.number().int().nullable(),
+  kolamName: z.string().nullable(),
+})
+export type ChatCatchPhoto = z.infer<typeof ChatCatchPhoto>
+
+export const ChatKolamCard = z.object({
+  type: z.literal('KOLAM'),
+  kolamId: z.string(),
+  name: z.string(),
+  state: z.string().nullable(),
+  avgRating: z.number().nullable(),
+  thumbnailUrl: z.string().nullable(),
+})
+export type ChatKolamCard = z.infer<typeof ChatKolamCard>
+
+export const ChatMediaItem = z.discriminatedUnion('type', [
+  ChatSpeciesPhoto,
+  ChatYoutubeVideo,
+  ChatCatchPhoto,
+  ChatKolamCard,
+])
+export type ChatMediaItem = z.infer<typeof ChatMediaItem>
+
 export const ChatMessageItem = z.object({
   id: z.string(),
   role: ChatRole,
   content: z.string(),
   createdAt: z.string(), // ISO datetime
+  media: z.array(ChatMediaItem).optional(),
 })
 export type ChatMessageItem = z.infer<typeof ChatMessageItem>
 
@@ -45,3 +98,24 @@ export const SendMessageResponse = z.object({
   reply: ChatMessageItem,
 })
 export type SendMessageResponse = z.infer<typeof SendMessageResponse>
+
+// POST /api/chatbot/stream — newline-delimited JSON, one event per line. `step` and
+// `text` arrive while the answer is prepared; exactly one `done` or `error` ends it.
+// Clients should ignore event types and step codes they do not know.
+export const ChatProgressStep = z.enum([
+  'THINKING',
+  'SEARCH_KOLAM',
+  'LOOKUP_SPECIES',
+  'CHECK_SCHEDULE',
+  'SEARCH_YOUTUBE',
+  'WRITING',
+])
+export type ChatProgressStep = z.infer<typeof ChatProgressStep>
+
+export const ChatStreamEvent = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('step'), step: ChatProgressStep, label: z.string().optional() }),
+  z.object({ type: z.literal('text'), delta: z.string() }),
+  z.object({ type: z.literal('done'), threadId: z.string(), reply: ChatMessageItem }),
+  z.object({ type: z.literal('error'), message: z.string() }),
+])
+export type ChatStreamEvent = z.infer<typeof ChatStreamEvent>
