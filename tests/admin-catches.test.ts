@@ -43,6 +43,12 @@ describe('AdminAction', () => {
     expect(AdminAction.parse('CATCH_VERIFIED')).toBe('CATCH_VERIFIED')
     expect(AdminAction.parse('CATCH_REJECTED')).toBe('CATCH_REJECTED')
   })
+
+  it('includes the five blog post actions', () => {
+    for (const action of ['BLOG_POST_CREATED', 'BLOG_POST_UPDATED', 'BLOG_POST_PUBLISHED', 'BLOG_POST_UNPUBLISHED', 'BLOG_POST_DELETED']) {
+      expect(AdminAction.parse(action)).toBe(action)
+    }
+  })
 })
 
 describe('AdminSummary', () => {

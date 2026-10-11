@@ -37,6 +37,12 @@ export const AdminAction = z.enum([
   // their role; these two record the decision itself, inside its transaction.
   'CATCH_VERIFIED',
   'CATCH_REJECTED',
+  // Slice — the public site's blog, written and published from the admin dashboard.
+  'BLOG_POST_CREATED',
+  'BLOG_POST_UPDATED',
+  'BLOG_POST_PUBLISHED',
+  'BLOG_POST_UNPUBLISHED',
+  'BLOG_POST_DELETED',
 ])
 export type AdminAction = z.infer<typeof AdminAction>
 
