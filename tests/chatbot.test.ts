@@ -10,6 +10,10 @@ const species = {
 const video = { type: 'YOUTUBE_VIDEO', videoId: 'dQw4w9WgXcQ', title: 'Cara', channelTitle: 'Otai', thumbnailUrl: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg' }
 const catchPhoto = { type: 'CATCH_PHOTO', catchId: 'c1', imageUrl: 'https://r2/c.jpg', speciesName: 'Patin', weightGrams: 3200, kolamName: null }
 const kolam = { type: 'KOLAM', kolamId: 'k1', name: 'Kolam A', state: 'Selangor', avgRating: 4.5, thumbnailUrl: null }
+const event = {
+  type: 'EVENT', eventId: 'e1', title: 'Liga Bulanan', spotName: 'Kolam A', state: 'Selangor',
+  startsAt: '2026-11-01T00:00:00.000Z', endsAt: '2026-11-01T06:00:00.000Z', entryFeeSen: 4000, prizePoolSen: null, imageUrl: null,
+}
 
 describe('ChatMessageItem', () => {
   it('parses a message without media (old server / pre-feature rows)', () => {
@@ -18,13 +22,13 @@ describe('ChatMessageItem', () => {
   })
 
   it('parses a message carrying every media type', () => {
-    const parsed = ChatMessageItem.parse({ ...base, media: [species, video, catchPhoto, kolam] })
-    expect(parsed.media?.map((m) => m.type)).toEqual(['SPECIES', 'YOUTUBE_VIDEO', 'CATCH_PHOTO', 'KOLAM'])
+    const parsed = ChatMessageItem.parse({ ...base, media: [species, video, catchPhoto, kolam, event] })
+    expect(parsed.media?.map((m) => m.type)).toEqual(['SPECIES', 'YOUTUBE_VIDEO', 'CATCH_PHOTO', 'KOLAM', 'EVENT'])
   })
 })
 
 describe('ChatMediaItem', () => {
-  it.each([species, video, catchPhoto, kolam])('accepts $type', (item) => {
+  it.each([species, video, catchPhoto, kolam, event])('accepts $type', (item) => {
     expect(ChatMediaItem.safeParse(item).success).toBe(true)
   })
 

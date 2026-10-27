@@ -7,6 +7,8 @@ describe('ChatStreamEvent', () => {
   it.each([
     { type: 'step', step: 'THINKING' },
     { type: 'step', step: 'SEARCH_KOLAM', label: 'Selangor' },
+    { type: 'step', step: 'SEARCH_EVENTS', label: 'Selangor' },
+    { type: 'step', step: 'CHECK_TIDE', label: 'Port Klang' },
     { type: 'text', delta: 'Untuk patin' },
     { type: 'done', threadId: 't1', reply },
     { type: 'error', message: 'Digital Otai sedang sibuk — cuba lagi sekejap.' },
