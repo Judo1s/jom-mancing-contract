@@ -29,6 +29,9 @@ export const CreateCatchRequest = z.object({
   weightGrams: z.number().int().positive().nullable().optional(),
   lengthMm: z.number().int().positive().nullable().optional(),
   baitUsed: z.string().nullable().optional(),
+  // The tackle it came on ("7 ft rod, 3000 reel, 20 lb braid"). Free text like
+  // baitUsed, and as optional: older app builds never send it.
+  setupUsed: z.string().trim().max(200).nullable().optional(),
   note: z.string().nullable().optional(),
   caughtAt: z.string(), // ISO datetime
   // "Publish to the Activity feed" vs "just log it" toggle on the create form —
@@ -78,6 +81,7 @@ export const CatchLogItem = z.object({
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   baitUsed: z.string().nullable(),
+  setupUsed: z.string().nullable(),
   note: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
   status: CatchStatus,
