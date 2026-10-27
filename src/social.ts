@@ -34,6 +34,7 @@ export const FriendsFeedItem = z.object({
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   baitUsed: z.string().nullable(),
+  setupUsed: z.string().nullable(),
   note: z.string().nullable(),
   // Where it was caught, for the location chip on the post. Null when the angler
   // pinned no spot — the picker is optional.
