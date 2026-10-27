@@ -47,11 +47,28 @@ export const ChatKolamCard = z.object({
 })
 export type ChatKolamCard = z.infer<typeof ChatKolamCard>
 
+// A tournament from the Events tab. Instants are ISO datetimes, formatted on the phone the
+// way the Events tab formats them; fees are in sen, null meaning none listed.
+export const ChatEventCard = z.object({
+  type: z.literal('EVENT'),
+  eventId: z.string(),
+  title: z.string(),
+  spotName: z.string(),
+  state: z.string().nullable(),
+  startsAt: z.string(),
+  endsAt: z.string(),
+  entryFeeSen: z.number().int().nullable(),
+  prizePoolSen: z.number().int().nullable(),
+  imageUrl: z.string().nullable(),
+})
+export type ChatEventCard = z.infer<typeof ChatEventCard>
+
 export const ChatMediaItem = z.discriminatedUnion('type', [
   ChatSpeciesPhoto,
   ChatYoutubeVideo,
   ChatCatchPhoto,
   ChatKolamCard,
+  ChatEventCard,
 ])
 export type ChatMediaItem = z.infer<typeof ChatMediaItem>
 
@@ -108,6 +125,8 @@ export const ChatProgressStep = z.enum([
   'LOOKUP_SPECIES',
   'CHECK_SCHEDULE',
   'SEARCH_YOUTUBE',
+  'SEARCH_EVENTS',
+  'CHECK_TIDE',
   'WRITING',
 ])
 export type ChatProgressStep = z.infer<typeof ChatProgressStep>
