@@ -12,6 +12,7 @@ import {
   AdminPublishRequest,
   AdminSummary,
   AdminMapResponse,
+  AdminSuspensionRequest,
 } from '../src/admin'
 
 describe('AdminRoleUpdateRequest', () => {
@@ -56,6 +57,8 @@ const validUserDetail = {
   role: 'ANGLER' as const,
   image: null,
   createdAt: '2026-01-01T00:00:00.000Z',
+  suspendedAt: null,
+  suspendedReason: null,
   bio: null,
   state: 'Selangor',
   ownedKolam: [],
@@ -63,6 +66,9 @@ const validUserDetail = {
   recentCatches: [
     {
       id: 'catch-1',
+      title: 'Big one at the pond',
+      photoUrl: null,
+      published: true,
       speciesName: 'Toman',
       caughtAt: '2026-01-02T00:00:00.000Z',
       status: 'VERIFIED',
@@ -82,6 +88,30 @@ describe('AdminUserDetail', () => {
       recentCatches: [{ ...validUserDetail.recentCatches[0], status: 'MAYBE' }],
     }
     expect(() => AdminUserDetail.parse(invalid)).toThrow()
+  })
+})
+
+describe('AdminSuspensionRequest', () => {
+  it('accepts suspending and lifting with a reason', () => {
+    expect(AdminSuspensionRequest.parse({ suspended: true, reason: 'Spam posts' }).suspended).toBe(true)
+    expect(AdminSuspensionRequest.parse({ suspended: false, reason: 'Appeal accepted' }).suspended).toBe(false)
+  })
+
+  it('rejects a missing or blank reason', () => {
+    expect(() => AdminSuspensionRequest.parse({ suspended: true })).toThrow()
+    expect(() => AdminSuspensionRequest.parse({ suspended: true, reason: '   ' })).toThrow()
+  })
+
+  it('rejects a missing suspended flag', () => {
+    expect(() => AdminSuspensionRequest.parse({ reason: 'Spam posts' })).toThrow()
+  })
+})
+
+describe('AdminAction moderation vocabulary', () => {
+  it('includes the post-deletion and suspension actions', () => {
+    for (const action of ['CATCH_DELETED', 'USER_SUSPENDED', 'USER_UNSUSPENDED']) {
+      expect(AdminAction.parse(action)).toBe(action)
+    }
   })
 })
 
