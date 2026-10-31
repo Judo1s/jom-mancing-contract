@@ -43,6 +43,12 @@ export const AdminAction = z.enum([
   'BLOG_POST_PUBLISHED',
   'BLOG_POST_UNPUBLISHED',
   'BLOG_POST_DELETED',
+  // Slice — moderation. Staff removing an angler's post, and suspending or restoring
+  // an account. `before` on CATCH_DELETED keeps enough of the post to know what was
+  // removed, since the row itself is gone.
+  'CATCH_DELETED',
+  'USER_SUSPENDED',
+  'USER_UNSUSPENDED',
 ])
 export type AdminAction = z.infer<typeof AdminAction>
 
@@ -65,6 +71,9 @@ export const AdminUserListItem = z.object({
   role: AdminAssignableRole,
   image: z.string().nullable(),
   createdAt: z.string(), // ISO datetime
+  // Set while the account is suspended: it cannot sign in and every token it holds
+  // is rejected. Null for an account in good standing.
+  suspendedAt: z.string().nullable(), // ISO datetime
 })
 export type AdminUserListItem = z.infer<typeof AdminUserListItem>
 
@@ -86,9 +95,15 @@ export const AdminUserDetail = AdminUserListItem.extend({
       currentPeriodEnd: z.string(), // ISO datetime
     }),
   ),
+  // Why the account was suspended, as the admin wrote it. Null when not suspended.
+  suspendedReason: z.string().nullable(),
   recentCatches: z.array(
     z.object({
       id: z.string(),
+      // Enough of the post for staff to recognise it before deleting it.
+      title: z.string().nullable(),
+      photoUrl: z.string().nullable(),
+      published: z.boolean(),
       speciesName: z.string().nullable(),
       caughtAt: z.string(), // ISO datetime
       status: CatchStatus,
@@ -96,6 +111,18 @@ export const AdminUserDetail = AdminUserListItem.extend({
   ),
 })
 export type AdminUserDetail = z.infer<typeof AdminUserDetail>
+
+// PATCH /api/admin/users/:id/suspension
+// `suspended: true` suspends, `false` lifts it. The reason is required both ways: it
+// is what the audit log exists to carry.
+export const AdminSuspensionRequest = z.object({
+  suspended: z.boolean(),
+  reason: z.string().trim().min(1),
+})
+export type AdminSuspensionRequest = z.infer<typeof AdminSuspensionRequest>
+
+// DELETE /api/admin/catches/:id takes AdminDeleteRequest (a reason only), defined
+// further down with the other delete bodies.
 
 // GET /api/admin/audit-log
 export const AdminAuditLogEntry = z.object({
