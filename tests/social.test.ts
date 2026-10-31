@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { NotificationItem, NotificationType } from '../src/social'
+import { FriendsFeedItem, NotificationItem, NotificationType, SavedCatchesResponse } from '../src/social'
 
 describe('NotificationType', () => {
   it('accepts the two new rank-crossing types', () => {
@@ -35,5 +35,25 @@ describe('NotificationItem', () => {
   it('rejects a notification missing the new kolamId/kolamName/rank fields', () => {
     const { kolamId, kolamName, rank, ...rest } = withoutActor
     expect(() => NotificationItem.parse(rest)).toThrow()
+  })
+})
+
+describe('FriendsFeedItem.savedByMe', () => {
+  const item = {
+    id: 'c1', userId: 'u1', userName: 'Ali', userImage: null,
+    title: null, speciesName: 'Haruan', photoUrl: null, photoUrls: [],
+    weightGrams: null, lengthMm: null, baitUsed: null, setupUsed: null, note: null,
+    spotName: null, spotId: null, caughtAt: new Date().toISOString(),
+    strikeCount: 0, struckByMe: false, savedByMe: true, commentCount: 0, isFollowing: false,
+  }
+
+  it('accepts a feed item carrying savedByMe, and a saved-posts list of them', () => {
+    expect(FriendsFeedItem.parse(item).savedByMe).toBe(true)
+    expect(() => SavedCatchesResponse.parse({ catches: [item] })).not.toThrow()
+  })
+
+  it('requires savedByMe', () => {
+    const { savedByMe, ...rest } = item
+    expect(() => FriendsFeedItem.parse(rest)).toThrow()
   })
 })
