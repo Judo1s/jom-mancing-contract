@@ -13,6 +13,9 @@ import {
   AdminSummary,
   AdminMapResponse,
   AdminSuspensionRequest,
+  AdminSpotApproveRequest,
+  AdminSpotRejectRequest,
+  AdminPendingSpotsResponse,
 } from '../src/admin'
 
 describe('AdminRoleUpdateRequest', () => {
@@ -291,5 +294,53 @@ describe('AdminMapResponse', () => {
       shopsWithoutCoordinates: 0,
     })
     expect(parsed.kolam[0].isPublished).toBe(false)
+  })
+})
+
+describe('community spot review', () => {
+  it('AdminSpotApproveRequest accepts an empty body and an open-water type', () => {
+    expect(AdminSpotApproveRequest.parse({})).toEqual({})
+    expect(AdminSpotApproveRequest.parse({ type: 'TASIK' }).type).toBe('TASIK')
+  })
+
+  it('AdminSpotApproveRequest rejects KOLAM, which is not an open-water type', () => {
+    expect(() => AdminSpotApproveRequest.parse({ type: 'KOLAM' })).toThrow()
+  })
+
+  it('AdminSpotRejectRequest rejects a whitespace-only reason and accepts a real one', () => {
+    expect(() => AdminSpotRejectRequest.parse({ reason: '   ' })).toThrow()
+    expect(AdminSpotRejectRequest.parse({ reason: 'Duplicate' }).reason).toBe('Duplicate')
+  })
+
+  it('AdminAction includes the spot review actions', () => {
+    expect(AdminAction.parse('SPOT_REJECTED')).toBe('SPOT_REJECTED')
+    expect(AdminAction.parse('SPOT_APPROVED')).toBe('SPOT_APPROVED')
+    expect(AdminAction.parse('SPOT_PUBLISHED')).toBe('SPOT_PUBLISHED')
+    expect(AdminAction.parse('SPOT_UNPUBLISHED')).toBe('SPOT_UNPUBLISHED')
+  })
+
+  it('AdminPendingSpotsResponse parses a spot with no contributor and no catch photos', () => {
+    const parsed = AdminPendingSpotsResponse.parse({
+      spots: [
+        {
+          id: 'spot-1',
+          name: 'Sungai Lembing',
+          type: 'SUNGAI',
+          state: 'Pahang',
+          address: null,
+          description: null,
+          latitude: 3.8,
+          longitude: 103.1,
+          sentAt: '2026-10-30T08:00:00.000Z',
+          contributor: null,
+          catchPhotos: [],
+          catchCount: 0,
+        },
+      ],
+      nextCursor: null,
+      pendingCount: 1,
+    })
+    expect(parsed.spots[0].contributor).toBeNull()
+    expect(parsed.spots[0].catchPhotos).toEqual([])
   })
 })

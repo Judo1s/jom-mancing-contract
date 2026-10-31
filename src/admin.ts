@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CatchStatus } from './catch-log'
+import { SpotType } from './common'
 
 // Internal admin surface. See jom-mancing-admin's
 // docs/superpowers/specs/2026-09-01-internal-admin-foundation-design.md.
@@ -49,6 +50,12 @@ export const AdminAction = z.enum([
   'CATCH_DELETED',
   'USER_SUSPENDED',
   'USER_UNSUSPENDED',
+  // Slice — community spot review. Staff approving, rejecting, publishing and
+  // unpublishing spots that anglers submitted.
+  'SPOT_APPROVED',
+  'SPOT_REJECTED',
+  'SPOT_PUBLISHED',
+  'SPOT_UNPUBLISHED',
 ])
 export type AdminAction = z.infer<typeof AdminAction>
 
@@ -170,6 +177,75 @@ export const AdminPublishRequest = z.object({
   reason: Reason,
 })
 export type AdminPublishRequest = z.infer<typeof AdminPublishRequest>
+
+// --- Community spot review ---------------------------------------------------
+
+// The types a pending spot can be approved into. KOLAM is absent on purpose: a kolam
+// is created through the kolam flow, never by approving a community spot.
+export const OpenWaterSpotType = z.enum(['SUNGAI', 'TASIK', 'EMPANGAN', 'LAUT'])
+export type OpenWaterSpotType = z.infer<typeof OpenWaterSpotType>
+
+// POST /api/admin/spots/:id/approve
+// `type` is optional: staff may correct the type the contributor picked.
+export const AdminSpotApproveRequest = z.object({
+  type: OpenWaterSpotType.optional(),
+})
+export type AdminSpotApproveRequest = z.infer<typeof AdminSpotApproveRequest>
+
+// POST /api/admin/spots/:id/reject
+export const AdminSpotRejectRequest = z.object({ reason: Reason })
+export type AdminSpotRejectRequest = z.infer<typeof AdminSpotRejectRequest>
+
+// One row in the review queue: a spot an angler submitted that is not yet approved.
+export const AdminPendingSpot = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: SpotType,
+  state: z.string().nullable(),
+  address: z.string().nullable(),
+  description: z.string().nullable(),
+  latitude: z.number(),
+  longitude: z.number(),
+  sentAt: z.string(), // ISO datetime
+  contributor: z
+    .object({
+      id: z.string(),
+      name: z.string().nullable(),
+      image: z.string().nullable(),
+    })
+    .nullable(),
+  catchPhotos: z.array(z.string()),
+  catchCount: z.number().int(),
+})
+export type AdminPendingSpot = z.infer<typeof AdminPendingSpot>
+
+// One row in the catalogue: an approved spot, published or not.
+export const AdminCatalogueSpot = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: SpotType,
+  state: z.string().nullable(),
+  isPublished: z.boolean(),
+  latitude: z.number(),
+  longitude: z.number(),
+})
+export type AdminCatalogueSpot = z.infer<typeof AdminCatalogueSpot>
+
+// GET /api/admin/spots/pending — `pendingCount` is the queue's total, not this page's length.
+export const AdminPendingSpotsResponse = z.object({
+  spots: z.array(AdminPendingSpot),
+  nextCursor: z.string().nullable(),
+  pendingCount: z.number().int(),
+})
+export type AdminPendingSpotsResponse = z.infer<typeof AdminPendingSpotsResponse>
+
+// GET /api/admin/spots/catalogue
+export const AdminCatalogueSpotsResponse = z.object({
+  spots: z.array(AdminCatalogueSpot),
+  nextCursor: z.string().nullable(),
+  pendingCount: z.number().int(),
+})
+export type AdminCatalogueSpotsResponse = z.infer<typeof AdminCatalogueSpotsResponse>
 
 // POST /api/admin/kolam — writes Spot and Kolam together; see the spec.
 export const AdminKolamCreateRequest = z.object({
