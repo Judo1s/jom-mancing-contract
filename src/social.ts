@@ -47,6 +47,11 @@ export const FriendsFeedItem = z.object({
   // would be the exact leak the CATCH_NOT_AT_PRIVATE_SPOT comment warns about the
   // moment the visibility rule above is ever loosened.
   spotName: z.string().nullable(),
+  // The pinned spot's id, so tapping the location chip can open the Map focused on it.
+  // An id is not a location: the app resolves it only against pins it can already see
+  // (public kolam and open water, plus the viewer's own private spots), so this leaks
+  // nothing the no-coordinates rule above protects. Null exactly when spotName is.
+  spotId: z.string().nullable(),
   caughtAt: z.string(), // ISO datetime
   strikeCount: z.number().int(),
   struckByMe: z.boolean(),
