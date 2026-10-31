@@ -55,6 +55,10 @@ export const FriendsFeedItem = z.object({
   caughtAt: z.string(), // ISO datetime
   strikeCount: z.number().int(),
   struckByMe: z.boolean(),
+  // Whether the viewer has bookmarked this post (POST/DELETE /api/catches/:id/save).
+  // Private to the viewer: there is deliberately no saveCount, so nobody learns how
+  // many people kept their post — saving is a personal list, not a public reaction.
+  savedByMe: z.boolean(),
   commentCount: z.number().int(),
   // False for the requester's own catches too, alongside anyone else not followed —
   // callers should also check userId against the signed-in user before showing a
@@ -74,6 +78,20 @@ export const StrikeResponse = z.object({
   strikeCount: z.number().int(),
 })
 export type StrikeResponse = z.infer<typeof StrikeResponse>
+
+// POST/DELETE /api/catches/:id/save — bookmark a post for later. Idempotent both ways.
+export const SaveCatchResponse = z.object({
+  saved: z.boolean(),
+})
+export type SaveCatchResponse = z.infer<typeof SaveCatchResponse>
+
+// GET /api/saved-catches — the viewer's saved posts, most recently saved first. Same
+// item shape as the feed so a saved post opens straight into CatchDetailScreen. A post
+// its author has since hidden or deleted simply drops out of this list.
+export const SavedCatchesResponse = z.object({
+  catches: z.array(FriendsFeedItem),
+})
+export type SavedCatchesResponse = z.infer<typeof SavedCatchesResponse>
 
 // GET/POST /api/catches/:id/comments
 export const CommentItem = z.object({
