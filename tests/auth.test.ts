@@ -11,6 +11,7 @@ describe('AuthUser.role', () => {
     bio: null,
     state: null,
     onboardingCompletedAt: null,
+    termsAcceptedVersion: null,
   }
 
   it('accepts SHOP_OWNER', () => {
