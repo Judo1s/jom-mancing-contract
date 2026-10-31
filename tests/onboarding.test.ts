@@ -70,6 +70,7 @@ describe('AuthUser', () => {
       bio: null,
       state: null,
       onboardingCompletedAt: null,
+      termsAcceptedVersion: null,
     })
     expect(parsed.onboardingCompletedAt).toBeNull()
   })

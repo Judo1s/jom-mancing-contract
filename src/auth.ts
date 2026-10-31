@@ -49,6 +49,12 @@ export const AuthUser = z.object({
   // onboarding field on AuthUser — the answers themselves come from /api/profile/me,
   // because the gate is all the app needs at auth time.
   onboardingCompletedAt: z.string().nullable(),
+  // The version of the Terms of Service, Privacy Policy and Community Rules this account
+  // last agreed to (see CURRENT_TERMS_VERSION in legal.ts), or null for never. The app
+  // shows its agree-to-terms screen before anything else whenever this is not the
+  // current version, so a significant change to the documents is re-accepted by bumping
+  // the constant.
+  termsAcceptedVersion: z.string().nullable(),
 })
 export type AuthUser = z.infer<typeof AuthUser>
 
