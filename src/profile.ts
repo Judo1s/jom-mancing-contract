@@ -19,10 +19,26 @@ export const SavedSpotListResponse = z.object({
 })
 export type SavedSpotListResponse = z.infer<typeof SavedSpotListResponse>
 
+// One fish on a profile's Species list. Free-typed names are merged by speciesKey()
+// ("Patin", "patin" and "Ikan Patin" are one fish); `name` is the key in title case,
+// the same display rule as the kolam leaderboard's species chips.
+export const ProfileSpecies = z.object({
+  key: z.string(),
+  name: z.string(),
+  catchCount: z.number().int(),
+})
+export type ProfileSpecies = z.infer<typeof ProfileSpecies>
+
 export const ProfileStats = z.object({
   totalCatches: z.number().int(),
+  // Always species.length; kept for app builds that only read the number.
   speciesCount: z.number().int(),
   biggestCatchGrams: z.number().int().nullable(),
+  // The post the Biggest number comes from, so tapping it can open that post. Null
+  // exactly when biggestCatchGrams is.
+  biggestCatchId: z.string().nullable(),
+  // Most-caught first, then A–Z.
+  species: z.array(ProfileSpecies),
 })
 export type ProfileStats = z.infer<typeof ProfileStats>
 
