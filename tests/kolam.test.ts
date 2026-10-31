@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  speciesKey,
   UpdateKolamProfileRequest,
   ReplaceKolamHoursRequest,
   CreateStockReleaseRequest,
@@ -101,3 +102,18 @@ describe('VerifyCatchRequest', () => {
     expect(VerifyCatchRequest.safeParse({ status: 'PENDING' }).success).toBe(false)
   })
 })
+
+describe('speciesKey', () => {
+  it('folds case, spacing and a leading "ikan" onto one key', () => {
+    expect(speciesKey('Patin')).toBe('patin')
+    expect(speciesKey('  PATIN ')).toBe('patin')
+    expect(speciesKey('Ikan Patin')).toBe('patin')
+    expect(speciesKey('ikan   patin')).toBe('patin')
+    expect(speciesKey('Udang  Galah')).toBe('udang galah')
+  })
+
+  it('keeps a name that only starts with the letters "ikan"', () => {
+    expect(speciesKey('Ikankeli')).toBe('ikankeli')
+  })
+})
+

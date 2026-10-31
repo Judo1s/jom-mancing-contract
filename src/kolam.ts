@@ -89,8 +89,38 @@ export const LeaderboardEntry = z.object({
 })
 export type LeaderboardEntry = z.infer<typeof LeaderboardEntry>
 
+/**
+ * The key a leaderboard groups fish under. Catch.speciesName is free text, so
+ * "Patin", "patin " and "Ikan Patin" must land on one board: lower-cased, trimmed,
+ * inner whitespace collapsed, and a leading "ikan " dropped (it's Malay for "fish",
+ * not part of the species). Spelling variants ("Talapia") stay separate on purpose —
+ * guessing those would merge fish that really are different.
+ *
+ * The server's SQL re-implements exactly this (lib/leaderboard.ts SPECIES_KEY_SQL), and
+ * its tests check the two agree. Change both or neither.
+ */
+export function speciesKey(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^ikan /, '')
+}
+
+// One filter chip on a kolam's leaderboard: a fish with at least one verified, weighed
+// catch there. `key` is what goes back as ?species=; `name` is for display.
+export const LeaderboardSpecies = z.object({
+  key: z.string(),
+  name: z.string(),
+  // Anglers on that fish's board — one entry each, same dedupe as the overall board.
+  anglerCount: z.number().int(),
+})
+export type LeaderboardSpecies = z.infer<typeof LeaderboardSpecies>
+
+// ?species=<key> narrows `entries` to that fish (each angler's heaviest of it); absent,
+// the board is every fish together, as before.
 export const KolamLeaderboardResponse = z.object({
   entries: z.array(LeaderboardEntry),
+  // Every fish with a board at this kolam, most anglers first — the same list whether
+  // or not ?species= is set, so the chips don't change under the angler's thumb.
+  // Optional only so an app on this contract tolerates a server that predates it.
+  species: z.array(LeaderboardSpecies).optional(),
 })
 export type KolamLeaderboardResponse = z.infer<typeof KolamLeaderboardResponse>
 
