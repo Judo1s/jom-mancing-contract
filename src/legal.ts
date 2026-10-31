@@ -7,7 +7,7 @@ import { z } from 'zod'
 // Bump this to the new "Last updated" date when a change is significant enough that
 // existing users must agree again; the app then shows its agree-to-terms screen to
 // everyone whose AuthUser.termsAcceptedVersion differs. Wording fixes do not need a bump.
-export const CURRENT_TERMS_VERSION = '2026-10-31'
+export const CURRENT_TERMS_VERSION = '2026-11-01'
 
 // POST /api/account/terms — records that the signed-in account agrees to the documents
 // at `version`. The server accepts only CURRENT_TERMS_VERSION, so an app build that
