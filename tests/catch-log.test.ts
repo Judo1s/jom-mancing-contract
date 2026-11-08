@@ -53,6 +53,15 @@ describe('normalizeCatchSpecies', () => {
     ).toEqual({ speciesName: 'Patin', otherSpeciesNames: ['tilapia', 'Rohu'] })
   })
 
+  it('treats spacing and a leading "Ikan" as the same fish (same key as the leaderboards)', () => {
+    expect(
+      normalizeCatchSpecies({
+        speciesName: 'Patin',
+        otherSpeciesNames: ['Ikan Patin', 'Patin   Mekong', 'patin mekong', 'IKAN  tilapia', 'Tilapia'],
+      }),
+    ).toEqual({ speciesName: 'Patin', otherSpeciesNames: ['Patin Mekong', 'IKAN tilapia'] })
+  })
+
   it('caps the total at MAX_CATCH_SPECIES (main + extras)', () => {
     const many = Array.from({ length: 20 }, (_, i) => `Fish ${i}`)
     const out = normalizeCatchSpecies({ speciesName: 'Patin', otherSpeciesNames: many })

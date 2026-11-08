@@ -260,7 +260,9 @@ export const PendingCatchItem = z.object({
   title: z.string().nullable(),
   speciesName: z.string().nullable(),
   // Extra fish on the same catch; the weight/length belong to `speciesName`. Empty when
-  // there are none, and for any server that predates the field.
+  // there are none. Parsing defaults it to [], but the app casts responses instead of
+  // parsing them, so against a server that predates the field it can be undefined at
+  // runtime: read it with `?? []`.
   otherSpeciesNames: z.array(z.string()).default([]),
   photoUrls: z.array(z.string()),
   weightGrams: z.number().int().nullable(),
