@@ -377,6 +377,9 @@ export const AdminPendingCatchItem = z.object({
   userImage: z.string().nullable(),
   title: z.string().nullable(),
   speciesName: z.string().nullable(),
+  // Extra fish on the same catch; the weight/length belong to `speciesName`. Empty when
+  // there are none, and for any server that predates the field.
+  otherSpeciesNames: z.array(z.string()).default([]),
   // The only evidence staff have for a catch they did not weigh — same reasoning as
   // PendingCatchItem's own note.
   photoUrls: z.array(z.string()),

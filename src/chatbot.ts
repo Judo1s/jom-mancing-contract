@@ -32,6 +32,9 @@ export const ChatCatchPhoto = z.object({
   catchId: z.string(),
   imageUrl: z.string(),
   speciesName: z.string().nullable(),
+  // Extra fish on the same catch; the weight/length belong to `speciesName`. Empty when
+  // there are none, and for any server that predates the field.
+  otherSpeciesNames: z.array(z.string()).default([]),
   weightGrams: z.number().int().nullable(),
   kolamName: z.string().nullable(),
 })
