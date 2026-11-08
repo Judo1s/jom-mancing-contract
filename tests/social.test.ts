@@ -57,3 +57,11 @@ describe('FriendsFeedItem.savedByMe', () => {
     expect(() => FriendsFeedItem.parse(rest)).toThrow()
   })
 })
+
+describe('FriendsFeedItem.spotLocation', () => {
+  it('is optional, so an older server response still parses', async () => {
+    const { FriendsFeedItem } = await import('../src/social')
+    expect(FriendsFeedItem.shape.spotLocation.isOptional()).toBe(true)
+    expect(FriendsFeedItem.shape.spotLocation.unwrap().isNullable()).toBe(true)
+  })
+})

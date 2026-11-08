@@ -14,6 +14,13 @@ export const PresignUploadResponse = z.object({
 })
 export type PresignUploadResponse = z.infer<typeof PresignUploadResponse>
 
+// Who may see a catch's pin (its private spot's name and coordinates) on the post.
+// Only meaningful when the catch's spot is one of the angler's own private spots;
+// kolam and public-spot catches ignore it. 'FRIENDS' means mutual follows (each follows
+// the other). The owner always sees their own pin. See Jom-Mancing-Server lib/catch-location.
+export const CatchLocationVisibility = z.enum(['PUBLIC', 'FRIENDS', 'PRIVATE'])
+export type CatchLocationVisibility = z.infer<typeof CatchLocationVisibility>
+
 // POST /api/catches
 export const CreateCatchRequest = z.object({
   title: z.string().trim().min(1).max(120).nullable().optional(),
@@ -44,6 +51,11 @@ export const CreateCatchRequest = z.object({
   // PENDING forever, so it never ranks and never reaches an owner's queue — see
   // resolveCatchVerification.
   submittedForVerification: z.boolean().default(true),
+  // Who sees the pin when `spotId` is the angler's own private spot. Optional so app
+  // builds from before the field keep working: the server then stores null, which keeps
+  // today's behaviour (a catch at a private spot stays out of everyone else's feeds).
+  // On PATCH, absent leaves the stored value alone; null is not accepted.
+  locationVisibility: CatchLocationVisibility.optional(),
 })
 export type CreateCatchRequest = z.infer<typeof CreateCatchRequest>
 
@@ -90,6 +102,10 @@ export const CatchLogItem = z.object({
   rejectionReason: z.string().nullable(),
   published: z.boolean(),
   submittedForVerification: z.boolean(),
+  // Who sees the pin of a private-spot catch. Null on catches logged before the field
+  // existed and on catches whose spot is not a private spot. Optional so a response
+  // from an older server still parses.
+  locationVisibility: CatchLocationVisibility.nullable().optional(),
   // Same kudos-style Strike counts the public feed shows (see FriendsFeedItem) — an
   // angler can strike their own catch too, so this carries a real count/flag rather
   // than being omitted.
