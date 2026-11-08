@@ -66,8 +66,9 @@ describe('comment replies', () => {
   })
 
   it('parses a reply with parentId, replyToUserName and deleted', () => {
-    const r = CommentItem.parse({ ...base, parentId: 'p1', replyToUserName: 'Abu', deleted: false })
+    const r = CommentItem.parse({ ...base, parentId: 'p1', replyToUserName: 'Abu', replyToUserId: 'u9', deleted: false })
     expect(r.parentId).toBe('p1')
+    expect(r.replyToUserId).toBe('u9')
     expect(r.replyToUserName).toBe('Abu')
   })
 

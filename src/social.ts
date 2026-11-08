@@ -109,6 +109,9 @@ export const CommentItem = z.object({
   // Name of the person actually replied to (may differ from the parent's author when
   // replying to a reply), for the "Replying to @name" line. Null when unknown.
   replyToUserName: z.string().nullable().optional(),
+  // Id of the same person, so clients compare ids rather than display names (names are
+  // not unique). Null/absent together with replyToUserName.
+  replyToUserId: z.string().nullable().optional(),
   // A top-level comment its author deleted while replies still hang off it. The row is
   // kept as a "Comment deleted" placeholder: text is a fallback string for old clients,
   // userId is '' and userName/userImage are null. It cannot be replied to.
