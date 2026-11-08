@@ -50,7 +50,9 @@ export const FriendsFeedItem = z.object({
   // The pinned spot's id, so tapping the location chip can open the Map focused on it.
   // An id is not a location: the app resolves it only against pins it can already see
   // (public kolam and open water, plus the viewer's own private spots), so this leaks
-  // nothing the no-coordinates rule above protects. Null exactly when spotName is.
+  // nothing the no-coordinates rule above protects. Null when there is no spot, and for
+  // a private pin the viewer may not see or does not own (spotName is then null too, or
+  // set with spotLocation when revealed, but the id stays null for non-owners).
   spotId: z.string().nullable(),
   // The revealed pin of a catch at a private spot: name and coordinates, filled by the
   // server only when this viewer is allowed to see it (the owner; everyone when the
