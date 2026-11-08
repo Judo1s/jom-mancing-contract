@@ -101,6 +101,18 @@ export const CommentItem = z.object({
   userImage: z.string().nullable(),
   text: z.string(),
   createdAt: z.string(), // ISO datetime
+  // Replies are one level deep: parentId is always a TOP-LEVEL comment's id (a reply to
+  // a reply is stored under the same top-level parent). Absent/null on top-level
+  // comments, and absent from old servers — all reply fields are optional so old app
+  // builds and old servers keep parsing.
+  parentId: z.string().nullable().optional(),
+  // Name of the person actually replied to (may differ from the parent's author when
+  // replying to a reply), for the "Replying to @name" line. Null when unknown.
+  replyToUserName: z.string().nullable().optional(),
+  // A top-level comment its author deleted while replies still hang off it. The row is
+  // kept as a "Comment deleted" placeholder: text is a fallback string for old clients,
+  // userId is '' and userName/userImage are null. It cannot be replied to.
+  deleted: z.boolean().optional(),
 })
 export type CommentItem = z.infer<typeof CommentItem>
 
@@ -111,6 +123,9 @@ export type CatchCommentsResponse = z.infer<typeof CatchCommentsResponse>
 
 export const PostCommentRequest = z.object({
   text: z.string().trim().min(1).max(500),
+  // Reply to this comment. May be a reply itself; the server attaches it to that
+  // reply's top-level parent. Omit for a normal top-level comment (all old builds).
+  parentId: z.string().min(1).optional(),
 })
 export type PostCommentRequest = z.infer<typeof PostCommentRequest>
 
@@ -160,6 +175,11 @@ export const NotificationItem = z.object({
   // detail screen alone: an unexplained rejection with no actor to ask is the worst of
   // both worlds, so the reason travels with the notification that delivers the news.
   rejectionReason: z.string().nullable(),
+  // True on a COMMENT row that is a reply to the viewer's own comment ("X replied to
+  // your comment") rather than a comment on their catch. Kept as a flag, not a new
+  // NotificationType, so old app builds — whose notification switch has no case for an
+  // unknown type — still show a normal comment row that opens the post.
+  isReply: z.boolean().optional(),
   createdAt: z.string(), // ISO datetime
   unread: z.boolean(),
 })
