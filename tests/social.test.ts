@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { FriendsFeedItem, NotificationItem, NotificationType, SavedCatchesResponse } from '../src/social'
+import { CommentItem, FriendsFeedItem, NotificationItem, NotificationType, PostCommentRequest, SavedCatchesResponse } from '../src/social'
 
 describe('NotificationType', () => {
   it('accepts the two new rank-crossing types', () => {
@@ -55,5 +55,37 @@ describe('FriendsFeedItem.savedByMe', () => {
   it('requires savedByMe', () => {
     const { savedByMe, ...rest } = item
     expect(() => FriendsFeedItem.parse(rest)).toThrow()
+  })
+})
+
+describe('comment replies', () => {
+  const base = { id: 'c1', userId: 'u1', userName: 'Ali', userImage: null, text: 'hi', createdAt: new Date().toISOString() }
+
+  it('still parses a comment from an old server (no reply fields)', () => {
+    expect(() => CommentItem.parse(base)).not.toThrow()
+  })
+
+  it('parses a reply with parentId, replyToUserName and deleted', () => {
+    const r = CommentItem.parse({ ...base, parentId: 'p1', replyToUserName: 'Abu', replyToUserId: 'u9', deleted: false })
+    expect(r.parentId).toBe('p1')
+    expect(r.replyToUserId).toBe('u9')
+    expect(r.replyToUserName).toBe('Abu')
+  })
+
+  it('PostCommentRequest accepts an optional parentId, and none', () => {
+    expect(PostCommentRequest.parse({ text: 'a' })).toEqual({ text: 'a' })
+    expect(PostCommentRequest.parse({ text: 'a', parentId: 'p1' }).parentId).toBe('p1')
+    expect(() => PostCommentRequest.parse({ text: 'a', parentId: '' })).toThrow()
+  })
+
+  it('NotificationItem accepts the optional isReply flag on a COMMENT, and omits it for old servers', () => {
+    const n = {
+      type: 'COMMENT' as const, actorId: 'u1', actorName: 'Bob', actorImage: null,
+      catchId: 'c1', catchPhotoUrl: null, catchSpeciesName: null,
+      kolamId: null, kolamName: null, rank: null, rejectionReason: null,
+      createdAt: new Date().toISOString(), unread: true,
+    }
+    expect(NotificationItem.parse({ ...n, isReply: true }).isReply).toBe(true)
+    expect(NotificationItem.parse(n).isReply).toBeUndefined()
   })
 })
