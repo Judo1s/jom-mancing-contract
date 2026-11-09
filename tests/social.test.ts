@@ -89,3 +89,11 @@ describe('comment replies', () => {
     expect(NotificationItem.parse(n).isReply).toBeUndefined()
   })
 })
+
+describe('FriendsFeedItem.spotLocation', () => {
+  it('is optional, so an older server response still parses', async () => {
+    const { FriendsFeedItem } = await import('../src/social')
+    expect(FriendsFeedItem.shape.spotLocation.isOptional()).toBe(true)
+    expect(FriendsFeedItem.shape.spotLocation.unwrap().isNullable()).toBe(true)
+  })
+})

@@ -48,15 +48,23 @@ export const FriendsFeedItem = z.object({
   // through FEED_CATCH_WHERE (which excludes catches at anybody's private spot) or
   // is the viewer's own catch, where the spot is already theirs. See lib/catches.ts.
   //
-  // Name only, deliberately no coordinates: the feed is public, and a lat/lng here
-  // would be the exact leak the CATCH_NOT_AT_PRIVATE_SPOT comment warns about the
-  // moment the visibility rule above is ever loosened.
+  // Name only, deliberately no coordinates, for kolam and public spots. A private pin's
+  // coordinates travel only in `spotLocation` below, which the server fills per viewer.
+  // For a private-spot catch this is null unless the viewer may see the pin.
   spotName: z.string().nullable(),
   // The pinned spot's id, so tapping the location chip can open the Map focused on it.
   // An id is not a location: the app resolves it only against pins it can already see
   // (public kolam and open water, plus the viewer's own private spots), so this leaks
-  // nothing the no-coordinates rule above protects. Null exactly when spotName is.
+  // nothing the no-coordinates rule above protects. Null when there is no spot, and for
+  // a private pin the viewer may not see or does not own (spotName is then null too, or
+  // set with spotLocation when revealed, but the id stays null for non-owners).
   spotId: z.string().nullable(),
+  // The revealed pin of a catch at a private spot: name and coordinates, filled by the
+  // server only when this viewer is allowed to see it (the owner; everyone when the
+  // catch is PUBLIC; mutual follows when FRIENDS). Otherwise null, and for a private-spot
+  // catch spotName and spotId are null too. Always null for kolam and public spots,
+  // whose coordinates are already public. Optional so an older server's response parses.
+  spotLocation: z.object({ name: z.string(), latitude: z.number(), longitude: z.number() }).nullable().optional(),
   caughtAt: z.string(), // ISO datetime
   strikeCount: z.number().int(),
   struckByMe: z.boolean(),

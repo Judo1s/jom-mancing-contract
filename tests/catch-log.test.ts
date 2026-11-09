@@ -87,3 +87,19 @@ describe('responses carry otherSpeciesNames', () => {
     expect(FriendsFeedItem.shape.otherSpeciesNames).toBeDefined()
   })
 })
+
+describe('CreateCatchRequest.locationVisibility', () => {
+  const base = { caughtAt: new Date().toISOString() }
+
+  it('is optional, so older app builds that never send it still validate', () => {
+    expect(CreateCatchRequest.parse(base).locationVisibility).toBeUndefined()
+  })
+
+  it('accepts PUBLIC, FRIENDS and PRIVATE only', () => {
+    for (const v of ['PUBLIC', 'FRIENDS', 'PRIVATE']) {
+      expect(CreateCatchRequest.parse({ ...base, locationVisibility: v }).locationVisibility).toBe(v)
+    }
+    expect(() => CreateCatchRequest.parse({ ...base, locationVisibility: 'EVERYONE' })).toThrow()
+    expect(() => CreateCatchRequest.parse({ ...base, locationVisibility: null })).toThrow()
+  })
+})
