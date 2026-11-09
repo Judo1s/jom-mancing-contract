@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { speciesKey } from './kolam'
 
 // POST /api/uploads/presign — 'catches' (default) or 'profile'. kolam-photos stay
 // out of reach of this user-facing endpoint; they're still seeded/managed directly.
@@ -14,12 +15,53 @@ export const PresignUploadResponse = z.object({
 })
 export type PresignUploadResponse = z.infer<typeof PresignUploadResponse>
 
+// A catch can hold several kinds of fish: one "main" fish (`speciesName`, the one the
+// weight and length belong to and the only one leaderboards rank) plus extras in
+// `otherSpeciesNames`. MAX_CATCH_SPECIES counts the main fish too, so up to 9 extras.
+export const MAX_CATCH_SPECIES = 10
+// Applies to each extra name. (`speciesName` itself has never been length-capped, and
+// stays that way so old catches and old app builds keep validating.)
+export const MAX_SPECIES_NAME_LENGTH = 60
+
+/**
+ * Cleans the species a catch is saved with: trims every name and collapses inner spaces, drops blanks, removes
+ * duplicates by speciesKey (case, spacing and a leading "Ikan " ignored), drops any extra equal to the main fish, and caps the
+ * extras so main + extras never exceeds MAX_CATCH_SPECIES. Missing extras read as empty,
+ * which is what an app build from before the field sends. Used by the server on save
+ * and by the app before it sends.
+ */
+export function normalizeCatchSpecies(input: {
+  speciesName?: string | null
+  otherSpeciesNames?: readonly string[] | null
+}): { speciesName: string | null; otherSpeciesNames: string[] } {
+  const main = input.speciesName?.trim() || null
+  // Same key the leaderboards group by, so "Patin", "patin ", "Ikan Patin" and
+  // "Patin   Mekong" vs "patin mekong" are each one fish.
+  const seen = new Set<string>()
+  if (main) seen.add(speciesKey(main))
+  const others: string[] = []
+  for (const raw of input.otherSpeciesNames ?? []) {
+    const name = raw.trim().replace(/\s+/g, ' ')
+    const key = speciesKey(name)
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    others.push(name)
+  }
+  return { speciesName: main, otherSpeciesNames: others.slice(0, MAX_CATCH_SPECIES - 1) }
+}
+
 // POST /api/catches
 export const CreateCatchRequest = z.object({
   title: z.string().trim().min(1).max(120).nullable().optional(),
   // Free text, not a picker off the Species lookup table — there are far too many
   // local fish names/variants for a fixed list to cover.
   speciesName: z.string().trim().min(1).nullable().optional(),
+  // The extra fish on the catch (see MAX_CATCH_SPECIES). Optional so app builds from
+  // before the field keep working, and deliberately without a Zod default: on an edit
+  // the server must tell "absent" (an old build, leave the stored extras alone) from
+  // `[]` (the angler removed them all). Absent reads as empty on create. The server
+  // normalizes it (normalizeCatchSpecies) and refuses extras on a catch with no main fish.
+  otherSpeciesNames: z.array(z.string().max(MAX_SPECIES_NAME_LENGTH)).max(MAX_CATCH_SPECIES - 1).optional(),
   spotId: z.string().nullable().optional(),
   // A catch carries up to MAX_CATCH_PHOTOS images. `photoUrl` is the first of them,
   // kept as its own field so app builds released before multi-photo keep rendering
@@ -66,6 +108,11 @@ export const CatchLogItem = z.object({
   id: z.string(),
   title: z.string().nullable(),
   speciesName: z.string().nullable(),
+  // Extra fish on the same catch; the weight/length belong to `speciesName`. Empty when
+  // there are none. Parsing defaults it to [], but the app casts responses instead of
+  // parsing them, so against a server that predates the field it can be undefined at
+  // runtime: read it with `?? []`.
+  otherSpeciesNames: z.array(z.string()).default([]),
   spotName: z.string().nullable(),
   // The pinned spot's id, not just its name. `spotName` alone is not enough: the app's
   // edit form is built entirely from a CatchLogItem and PATCH writes
