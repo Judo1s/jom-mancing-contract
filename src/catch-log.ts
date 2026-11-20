@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { speciesKey } from './kolam'
+import { CatchVideoResponseFields, MAX_CATCH_VIDEO_BYTES, MAX_CATCH_VIDEO_SECONDS } from './common'
 
 // POST /api/uploads/presign — 'catches' (default) or 'profile'. kolam-photos stay
 // out of reach of this user-facing endpoint; they're still seeded/managed directly.
@@ -14,6 +15,28 @@ export const PresignUploadResponse = z.object({
   publicUrl: z.string(),
 })
 export type PresignUploadResponse = z.infer<typeof PresignUploadResponse>
+
+export const CatchVideoContentType = z.enum(['video/mp4', 'video/quicktime'])
+export type CatchVideoContentType = z.infer<typeof CatchVideoContentType>
+
+// POST /api/uploads/video-presign — the bytes go straight from the phone to storage,
+// never through the API. The client POSTs a multipart form to `url` with every entry of
+// `fields` first and the file last (field name "file"), then sends `publicUrl` as the
+// catch's videoUrl. The thumbnail goes through the normal image presign ('catches').
+export const PresignVideoUploadRequest = z.object({
+  contentType: CatchVideoContentType,
+  sizeBytes: z.number().int().positive().max(MAX_CATCH_VIDEO_BYTES),
+  durationMs: z.number().int().positive().max(MAX_CATCH_VIDEO_SECONDS * 1000),
+})
+export type PresignVideoUploadRequest = z.infer<typeof PresignVideoUploadRequest>
+
+export const PresignVideoUploadResponse = z.object({
+  url: z.string(),
+  fields: z.record(z.string()),
+  publicUrl: z.string(),
+})
+export type PresignVideoUploadResponse = z.infer<typeof PresignVideoUploadResponse>
+
 
 // A catch can hold several kinds of fish: one "main" fish (`speciesName`, the one the
 // weight and length belong to and the only one leaderboards rank) plus extras in
@@ -75,6 +98,11 @@ export const CreateCatchRequest = z.object({
   // (and so the notification thumbnail query stays a single column read).
   photoUrl: z.string().nullable().optional(),
   photoUrls: z.array(z.string()).max(5).optional(),
+  // At most one video (see MAX_CATCH_VIDEO_SECONDS). Optional so older app builds keep
+  // working; on PATCH, absent leaves the stored video alone and null removes it.
+  videoUrl: z.string().nullable().optional(),
+  videoThumbUrl: z.string().nullable().optional(),
+  videoDurationMs: z.number().int().min(1).max(MAX_CATCH_VIDEO_SECONDS * 1000).nullable().optional(),
   weightGrams: z.number().int().positive().nullable().optional(),
   lengthMm: z.number().int().positive().nullable().optional(),
   baitUsed: z.string().nullable().optional(),
@@ -101,7 +129,8 @@ export const CreateCatchRequest = z.object({
 })
 export type CreateCatchRequest = z.infer<typeof CreateCatchRequest>
 
-// Caps the picker's selectionLimit, the create/update payload, and the carousel.
+// Caps the picker's selectionLimit, the create/update payload, and the carousel. A
+// video takes one of these slots.
 export const MAX_CATCH_PHOTOS = 5
 
 export const CatchStatus = z.enum(['PENDING', 'VERIFIED', 'REJECTED'])
@@ -137,6 +166,7 @@ export const CatchLogItem = z.object({
   spotKind: SpotKind.nullable(),
   photoUrl: z.string().nullable(),
   photoUrls: z.array(z.string()),
+  ...CatchVideoResponseFields,
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   baitUsed: z.string().nullable(),

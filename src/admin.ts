@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CatchStatus } from './catch-log'
+import { CatchVideoResponseFields } from './common'
 
 // Internal admin surface. See jom-mancing-admin's
 // docs/superpowers/specs/2026-09-01-internal-admin-foundation-design.md.
@@ -385,6 +386,7 @@ export const AdminPendingCatchItem = z.object({
   // The only evidence staff have for a catch they did not weigh — same reasoning as
   // PendingCatchItem's own note.
   photoUrls: z.array(z.string()),
+  ...CatchVideoResponseFields,
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   caughtAt: z.string(), // ISO datetime
