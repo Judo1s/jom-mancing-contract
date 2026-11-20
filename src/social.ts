@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CatchVideoResponseFields } from './common'
 
 // GET /api/users/search?q=
 export const AnglerSummary = z.object({
@@ -36,6 +37,7 @@ export const FriendsFeedItem = z.object({
   // First photo; `photoUrls` is the full set the feed carousel pages through.
   photoUrl: z.string().nullable(),
   photoUrls: z.array(z.string()),
+  ...CatchVideoResponseFields,
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   baitUsed: z.string().nullable(),

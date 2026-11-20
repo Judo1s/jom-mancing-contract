@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SenAmount } from './common'
+import { CatchVideoResponseFields, SenAmount } from './common'
 
 // GET /api/kolam/:id
 
@@ -265,6 +265,7 @@ export const PendingCatchItem = z.object({
   // runtime: read it with `?? []`.
   otherSpeciesNames: z.array(z.string()).default([]),
   photoUrls: z.array(z.string()),
+  ...CatchVideoResponseFields,
   weightGrams: z.number().int().nullable(),
   lengthMm: z.number().int().nullable(),
   caughtAt: z.string(), // ISO datetime

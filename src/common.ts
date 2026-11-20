@@ -78,3 +78,20 @@ export type MalaysianState = z.infer<typeof MalaysianState>
 // chatbot's system prompt includes — see the server's lib/gemini.ts.
 export const ExperienceLevel = z.enum(['BEGINNER', 'CASUAL', 'OTAI'])
 export type ExperienceLevel = z.infer<typeof ExperienceLevel>
+
+// A catch may carry one short video next to its photos. The video counts toward
+// MAX_CATCH_PHOTOS (so one video + up to 4 photos), and a video-only post is allowed.
+// Lives here rather than in catch-log so kolam/admin/social can share the response
+// fields without an import cycle (catch-log imports kolam).
+export const MAX_CATCH_VIDEO_SECONDS = 30
+export const MAX_CATCH_VIDEO_BYTES = 25 * 1024 * 1024
+
+// The video fields on catch responses. Optional so a response from an older server
+// still parses; null on catches without a video.
+export const CatchVideoResponseFields = {
+  videoUrl: z.string().nullable().optional(),
+  // JPEG poster frame made on the phone. On a video-only post it is also photoUrl /
+  // photoUrls[0], so app builds from before video still show a picture.
+  videoThumbUrl: z.string().nullable().optional(),
+  videoDurationMs: z.number().int().nullable().optional(),
+}
