@@ -20,6 +20,13 @@ export const UserSearchResponse = z.object({
 })
 export type UserSearchResponse = z.infer<typeof UserSearchResponse>
 
+// GET /api/users/by-username/:username — resolves a tapped @mention to the profile it
+// opens. 404 when nobody holds that handle (renamed, or never existed).
+export const UserIdByUsernameResponse = z.object({
+  id: z.string(),
+})
+export type UserIdByUsernameResponse = z.infer<typeof UserIdByUsernameResponse>
+
 // GET /api/feed/friends — every published catch, any author (public feed), newest
 // first. Name kept for now — see the route's own comment.
 export const FriendsFeedItem = z.object({
@@ -170,6 +177,9 @@ export const NotificationType = z.enum([
 ])
 export type NotificationType = z.infer<typeof NotificationType>
 
+export const NotificationMention = z.enum(['POST', 'COMMENT'])
+export type NotificationMention = z.infer<typeof NotificationMention>
+
 export const NotificationItem = z.object({
   type: NotificationType,
   // Null on RANK_ENTERED_PODIUM/RANK_LEFT_PODIUM — those have no human actor — and
@@ -198,6 +208,10 @@ export const NotificationItem = z.object({
   // NotificationType, so old app builds — whose notification switch has no case for an
   // unknown type — still show a normal comment row that opens the post.
   isReply: z.boolean().optional(),
+  // Set on a COMMENT row that is really "X mentioned you": 'POST' for an @tag in a
+  // catch caption, 'COMMENT' for one in a comment. Same reasoning as isReply — a flag,
+  // not a new NotificationType, so old builds still show a comment row that opens the post.
+  mention: NotificationMention.nullable().optional(),
   createdAt: z.string(), // ISO datetime
   unread: z.boolean(),
 })

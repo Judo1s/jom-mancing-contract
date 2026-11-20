@@ -36,6 +36,27 @@ export const Username = z
   .regex(/^[a-z0-9_]+$/, USERNAME_RULES)
 export type Username = z.infer<typeof Username>
 
+// An @mention in a caption or comment: "@" plus a handle that satisfies Username. The
+// leading group keeps emails out ("a@b.com" — the @ follows a letter) and the trailing
+// lookahead rejects a run longer than USERNAME_MAX_LENGTH instead of matching its first
+// 20 characters. Case-insensitive because people type "@Ali"; usernames are stored
+// lowercase. Group 1 is the character before the @ (or ""), group 2 the handle.
+// No lookbehind on purpose: the app's JS engine must run this too.
+// Global flag: use with matchAll / String.replace, never .test() or .exec() (lastIndex).
+export const MENTION_REGEX = /(^|[^a-z0-9_@.])@([a-z0-9_]{3,20})(?![a-z0-9_])/gi
+export const MAX_MENTIONS_PER_TEXT = 10
+
+// Handles @mentioned in `text`, lowercased, deduped, in first-seen order, at most
+// MAX_MENTIONS_PER_TEXT (a cap on how many people one comment can ping).
+export function extractMentions(text: string): string[] {
+  const seen = new Set<string>()
+  for (const m of text.matchAll(MENTION_REGEX)) {
+    seen.add(m[2].toLowerCase())
+    if (seen.size >= MAX_MENTIONS_PER_TEXT) break
+  }
+  return [...seen]
+}
+
 // How long an angler must wait between username changes. The first username — picked at
 // signup or on the pick-a-username screen — does not start the clock; only a change
 // does, so a signup typo is not locked in for a week. Lives here so the app's "you can
