@@ -20,9 +20,11 @@ export const CatchVideoContentType = z.enum(['video/mp4', 'video/quicktime'])
 export type CatchVideoContentType = z.infer<typeof CatchVideoContentType>
 
 // POST /api/uploads/video-presign — the bytes go straight from the phone to storage,
-// never through the API. The client POSTs a multipart form to `url` with every entry of
-// `fields` first and the file last (field name "file"), then sends `publicUrl` as the
-// catch's videoUrl. The thumbnail goes through the normal image presign ('catches').
+// never through the API. R2 does not support presigned POST policies, so this is a
+// presigned PUT whose signature covers Content-Type and Content-Length: the client must
+// PUT exactly `sizeBytes` bytes with exactly `contentType`, or storage answers 403. Then
+// it sends `publicUrl` as the catch's videoUrl. The thumbnail goes through the normal
+// image presign ('catches').
 export const PresignVideoUploadRequest = z.object({
   contentType: CatchVideoContentType,
   sizeBytes: z.number().int().positive().max(MAX_CATCH_VIDEO_BYTES),
@@ -31,8 +33,7 @@ export const PresignVideoUploadRequest = z.object({
 export type PresignVideoUploadRequest = z.infer<typeof PresignVideoUploadRequest>
 
 export const PresignVideoUploadResponse = z.object({
-  url: z.string(),
-  fields: z.record(z.string()),
+  uploadUrl: z.string(),
   publicUrl: z.string(),
 })
 export type PresignVideoUploadResponse = z.infer<typeof PresignVideoUploadResponse>
