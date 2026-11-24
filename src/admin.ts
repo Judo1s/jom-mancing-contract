@@ -50,6 +50,9 @@ export const AdminAction = z.enum([
   'CATCH_DELETED',
   'USER_SUSPENDED',
   'USER_UNSUSPENDED',
+  // Staff adding a beta tester by hand from the admin dashboard, now that the public
+  // /beta form is a launch waitlist. The row is what the sign-up gate checks.
+  'BETA_TESTER_ADDED',
 ])
 export type AdminAction = z.infer<typeof AdminAction>
 
